@@ -1,0 +1,27 @@
+env:
+  es2021: true
+  node: true
+extends:
+  - 'eslint:recommended'
+  - 'plugin:@typescript-eslint/recommended'
+parser: '@typescript-eslint/parser'
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 12
+  sourceType: module
+plugins:
+  - '@typescript-eslint'
+  - 'simple-import-sort'
+rules:
+  '@typescript-eslint/ban-types': off
+  '@typescript-eslint/explicit-module-boundary-types': off
+  'node/no-extraneous-import': off
+  'node/no-missing-import': off
+  'node/no-unpublished-import': off
+  'node/no-unsupported-features/es-syntax': off
+  'no-duplicate-imports':
+    - error
+    - includeExports: true
+  'simple-import-sort/imports': error
+  'sort-keys': error
