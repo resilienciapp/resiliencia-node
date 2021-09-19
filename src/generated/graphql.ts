@@ -18,7 +18,13 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  signIn: Session;
   signUp: Session;
+};
+
+
+export type MutationSignInArgs = {
+  input: SignInInput;
 };
 
 
@@ -40,6 +46,11 @@ export type Query = {
 export type Session = {
   __typename?: 'Session';
   jwt: Scalars['String'];
+};
+
+export type SignInInput = {
+  email: Scalars['String'];
+  password: Scalars['String'];
 };
 
 export type SignUpInput = {
@@ -130,6 +141,7 @@ export type ResolversTypes = {
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
   Session: ResolverTypeWrapper<Session>;
+  SignInInput: SignInInput;
   SignUpInput: SignUpInput;
   String: ResolverTypeWrapper<Scalars['String']>;
   User: ResolverTypeWrapper<MinimumIdentifiableUser>;
@@ -144,6 +156,7 @@ export type ResolversParentTypes = {
   Profile: Profile;
   Query: {};
   Session: Session;
+  SignInInput: SignInInput;
   SignUpInput: SignUpInput;
   String: Scalars['String'];
   User: MinimumIdentifiableUser;
@@ -154,6 +167,7 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 }
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
 };
 

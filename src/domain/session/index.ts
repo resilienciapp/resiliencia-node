@@ -1,8 +1,9 @@
+import { UserInputError } from 'apollo-server-express'
 import { Scope } from 'context'
 import { client } from 'db'
 import { encrypt } from 'domain/crypto'
 import { InternalError } from 'domain/errors'
-import { SignUpInput } from 'generated/graphql'
+import { SignInInput, SignUpInput } from 'generated/graphql'
 import { sign } from 'jsonwebtoken'
 
 enum TokenTime {
@@ -29,7 +30,23 @@ const generateToken = (
   ),
 })
 
-export const createAccount = async (fields: SignUpInput) => {
+export const signIn = async (fields: SignInInput) => {
+  const user = await client().user.findUnique({
+    where: { email: fields.email },
+  })
+
+  if (!user) {
+    throw new UserInputError('INVALID_CREDENTIALS')
+  }
+
+  if (user.password !== encrypt(fields.password)) {
+    throw new UserInputError('INVALID_CREDENTIALS')
+  }
+
+  return generateToken(user.id.toString(), [Scope.USER], TokenTime.USER)
+}
+
+export const signUp = async (fields: SignUpInput) => {
   try {
     const user = await client().user.create({
       data: {

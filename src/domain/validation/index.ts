@@ -1,15 +1,25 @@
 import { UserInputError } from 'apollo-server-errors'
-import { isEmail } from 'class-validator'
-import { SignUpInput } from 'generated/graphql'
+import { SignInInput, SignUpInput } from 'generated/graphql'
 
-export const validateSignUpFields = (fields: SignUpInput) => {
-  const errors = []
+import { validator } from './validator'
 
-  if (!isEmail(fields.email)) {
-    errors.push('INVALID_EMAIL')
-  }
-
-  if (errors.length > 0) {
+const compactValidations = (errors: (string | undefined)[]) => {
+  if (errors.filter(Boolean).length > 0) {
     throw new UserInputError('INVALID_FIELDS', { errors })
   }
+}
+
+export const validateSignInFields = (fields: SignInInput) => {
+  compactValidations([
+    validator.email(fields.email),
+    validator.password(fields.password),
+  ])
+}
+
+export const validateSignUpFields = (fields: SignUpInput) => {
+  compactValidations([
+    validator.email(fields.email),
+    validator.name(fields.name),
+    validator.password(fields.password),
+  ])
 }

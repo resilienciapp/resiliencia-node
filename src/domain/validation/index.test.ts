@@ -1,26 +1,49 @@
-import { createStubSignUpInput } from '__mocks__/support/user'
+import {
+  createStubSignInInput,
+  createStubSignUpInput,
+} from '__mocks__/support/user'
 import { UserInputError } from 'apollo-server-express'
-import { SignUpInput } from 'generated/graphql'
+import { SignInInput, SignUpInput } from 'generated/graphql'
 
-import { validateSignUpFields } from '.'
+import { validateSignInFields, validateSignUpFields } from '.'
 
-const signUpInput = createStubSignUpInput()
-
-describe('validateSignUpFields', () => {
+describe('validateSignInFields', () => {
   it('success case', () => {
-    expect(validateSignUpFields(signUpInput)).toBeUndefined()
+    expect(validateSignInFields(createStubSignInInput())).toBeUndefined()
   })
 
   describe('error cases', () => {
-    it('throws an error if the email is not on the right format', () => {
-      const badSignUpInput: SignUpInput = {
-        ...signUpInput,
+    it('throws an error if the input has not the right format', () => {
+      const badSignInInput: SignInInput = {
         email: 'email',
+        password: 'password',
+      }
+
+      expect(() => validateSignInFields(badSignInInput)).toThrowError(
+        new UserInputError('INVALID_FIELDS', {
+          errors: ['INVALID_EMAIL', 'INVALID_PASSWORD'],
+        }),
+      )
+    })
+  })
+})
+
+describe('validateSignUpFields', () => {
+  it('success case', () => {
+    expect(validateSignUpFields(createStubSignUpInput())).toBeUndefined()
+  })
+
+  describe('error cases', () => {
+    it('throws an error if the input has not the right format', () => {
+      const badSignUpInput: SignUpInput = {
+        email: 'email',
+        name: 'name',
+        password: 'password',
       }
 
       expect(() => validateSignUpFields(badSignUpInput)).toThrowError(
         new UserInputError('INVALID_FIELDS', {
-          errors: ['INVALID_EMAIL'],
+          errors: ['INVALID_EMAIL', 'INVALID_PASSWORD'],
         }),
       )
     })

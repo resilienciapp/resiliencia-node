@@ -1,10 +1,15 @@
-import { createStubSignUpInput, createStubUser } from '__mocks__/support/user'
+import {
+  createStubSignInInput,
+  createStubSignUpInput,
+  createStubUser,
+} from '__mocks__/support/user'
+import { UserInputError } from 'apollo-server-express'
 import { client } from 'db'
 import { encrypt } from 'domain/crypto'
 import { InternalError } from 'domain/errors'
 import { sign } from 'jsonwebtoken'
 
-import { createAccount } from './'
+import { signIn, signUp } from './'
 
 jest.mock('db')
 jest.mock('domain/crypto')
@@ -15,11 +20,82 @@ const mockEncrypt = encrypt as jest.Mock
 const mockSign = sign as jest.Mock
 
 const mockCreate = jest.fn()
+const mockFindUnique = jest.fn()
 
+const stubSignInInput = createStubSignInInput()
 const stubSignUpInput = createStubSignUpInput()
 const stubUser = createStubUser()
 
-describe('createAccount', () => {
+describe('signIn', () => {
+  beforeEach(() => {
+    mockClient.mockReturnValue({
+      user: { findUnique: mockFindUnique },
+    })
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('throws an error if the email is incorrect', () => {
+    mockFindUnique.mockResolvedValue(null)
+
+    expect(signIn(stubSignInInput)).rejects.toThrowError(
+      new UserInputError('INVALID_CREDENTIALS'),
+    )
+  })
+
+  it('throws an error if the password is incorrect', () => {
+    mockEncrypt.mockReturnValue('differentEncryptedPassword')
+    mockFindUnique.mockResolvedValue(stubUser)
+
+    expect(signIn(stubSignInInput)).rejects.toThrowError(
+      new UserInputError('INVALID_CREDENTIALS'),
+    )
+  })
+
+  describe('success case', () => {
+    beforeEach(() => {
+      mockEncrypt.mockReturnValue('encryptedPassword')
+      mockFindUnique.mockResolvedValue(stubUser)
+      mockSign.mockReturnValue('token')
+    })
+
+    afterEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('searches the correct user', async () => {
+      await signIn(stubSignInInput)
+
+      expect(mockFindUnique).toHaveBeenCalledWith({
+        where: { email: stubSignInInput.email },
+      })
+    })
+
+    it('calls the sign function with the correct parameters', async () => {
+      await signIn(stubSignInInput)
+
+      expect(mockSign).toHaveBeenCalledWith(
+        {
+          scope: ['USER'],
+          sub: stubUser.id.toString(),
+        },
+        process.env.JWT_PRIVATE_KEY,
+        {
+          algorithm: 'RS512',
+          expiresIn: '365 days',
+        },
+      )
+    })
+
+    it('returns the session token', () => {
+      expect(signIn(stubSignInInput)).resolves.toEqual({ jwt: 'token' })
+    })
+  })
+})
+
+describe('signUp', () => {
   beforeEach(() => {
     mockClient.mockReturnValue({
       user: { create: mockCreate },
@@ -33,7 +109,7 @@ describe('createAccount', () => {
   it('throws an error if user creation fails', () => {
     mockCreate.mockRejectedValue('ERROR')
 
-    expect(createAccount(stubSignUpInput)).rejects.toThrowError(
+    expect(signUp(stubSignUpInput)).rejects.toThrowError(
       new InternalError('ERROR_CREATING_USER'),
     )
   })
@@ -50,7 +126,7 @@ describe('createAccount', () => {
     })
 
     it('creates the user with the correct information', async () => {
-      await createAccount(stubSignUpInput)
+      await signUp(stubSignUpInput)
 
       expect(mockCreate).toHaveBeenCalledWith({
         data: {
@@ -62,7 +138,7 @@ describe('createAccount', () => {
     })
 
     it('calls the sign function with the correct parameters', async () => {
-      await createAccount(stubSignUpInput)
+      await signUp(stubSignUpInput)
 
       expect(mockSign).toHaveBeenCalledWith(
         {
@@ -78,7 +154,7 @@ describe('createAccount', () => {
     })
 
     it('returns the session token', () => {
-      expect(createAccount(stubSignUpInput)).resolves.toEqual({ jwt: 'token' })
+      expect(signUp(stubSignUpInput)).resolves.toEqual({ jwt: 'token' })
     })
   })
 })
