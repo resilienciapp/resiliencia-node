@@ -18,3 +18,13 @@ model User {
   @@index([email])
   @@map("users")
 }
+
+model Category {
+  id          Int      @id              @default(autoincrement())
+  created_at  DateTime @db.Timestamp(6) @default(now())
+  updated_at  DateTime @db.Timestamp(6) @default(now()) @updatedAt
+  name        String   @db.VarChar      @unique
+  description String?  @db.VarChar
+
+  @@map("categories")
+}

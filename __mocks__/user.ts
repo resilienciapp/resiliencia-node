@@ -2,12 +2,12 @@ import { User } from '@prisma/client'
 import { SignInInput, SignUpInput } from 'generated/graphql'
 
 export const createStubUser = (opts?: Partial<User>): User => ({
-  created_at: new Date(2000, 5, 25),
+  created_at: new Date('2000-05-25'),
   email: 'joaquin.aguirre@fing.edu.uy',
   id: 1,
   name: 'Joaquín Aguirre',
   password: 'encryptedPassword',
-  updated_at: new Date(2000, 5, 25),
+  updated_at: new Date('2000-05-25'),
   ...opts,
 })
 

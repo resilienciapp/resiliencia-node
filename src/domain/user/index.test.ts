@@ -1,4 +1,4 @@
-import { createStubUser } from '__mocks__/support/user'
+import { createStubUser } from '__mocks__/user'
 import { UserInputError } from 'apollo-server-express'
 import { client } from 'db'
 

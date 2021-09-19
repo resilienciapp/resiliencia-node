@@ -2,7 +2,7 @@ import {
   createStubSignInInput,
   createStubSignUpInput,
   createStubUser,
-} from '__mocks__/support/user'
+} from '__mocks__/user'
 import { UserInputError } from 'apollo-server-express'
 import { client } from 'db'
 import { encrypt } from 'domain/crypto'

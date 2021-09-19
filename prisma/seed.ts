@@ -1,4 +1,4 @@
-import { PrismaClient, User } from '@prisma/client'
+import { Category, PrismaClient, User } from '@prisma/client'
 
 import { encrypt } from '../src/domain/crypto'
 
@@ -6,9 +6,23 @@ const prisma = new PrismaClient()
 
 type Reduced<T> = Omit<T, 'created_at' | 'id' | 'updated_at'>
 
-type SeedUser = Reduced<User>
+const seedCategories: Reduced<Category>[] = [
+  {
+    description: 'Entrega de comida.',
+    name: 'Olla Popular',
+  },
+  {
+    description:
+      'Espacio al aire libre donde sentarse a comer, almorzar o merendar.',
+    name: 'Merendero',
+  },
+  {
+    description: 'Otro tipo de evento.',
+    name: 'Otro',
+  },
+]
 
-const seedUsers: SeedUser[] = [
+const seedUsers: Reduced<User>[] = [
   {
     email: 'joaquin.aguirre@fing.edu.uy',
     name: 'Joaquín Aguirre',
@@ -22,14 +36,14 @@ const seedUsers: SeedUser[] = [
 ]
 
 const seed = async () => {
-  const users = await prisma.$transaction(
-    seedUsers.map(seedUser =>
-      prisma.user.create({
-        data: seedUser,
-      }),
-    ),
+  const categories = await prisma.$transaction(
+    seedCategories.map(data => prisma.category.create({ data })),
   )
+  console.log(categories)
 
+  const users = await prisma.$transaction(
+    seedUsers.map(data => prisma.user.create({ data })),
+  )
   console.log(users)
 }
 

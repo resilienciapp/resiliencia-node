@@ -1,7 +1,4 @@
-import {
-  createStubSignInInput,
-  createStubSignUpInput,
-} from '__mocks__/support/user'
+import { createStubSignInInput, createStubSignUpInput } from '__mocks__/user'
 import { UserInputError } from 'apollo-server-express'
 import { SignInInput, SignUpInput } from 'generated/graphql'
 
