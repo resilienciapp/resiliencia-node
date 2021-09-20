@@ -1,0 +1,15 @@
+type Marker {
+  category: Category!
+  description: String
+  duration: Int!
+  expiresAt: Date
+  id: Int!
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  recurrence: String!
+}
+
+type Query {
+  markers: [Marker!]!
+}

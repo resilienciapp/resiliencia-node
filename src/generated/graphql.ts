@@ -23,6 +23,19 @@ export type Category = {
   name: Scalars['String'];
 };
 
+export type Marker = {
+  __typename?: 'Marker';
+  category: Category;
+  description?: Maybe<Scalars['String']>;
+  duration: Scalars['Int'];
+  expiresAt?: Maybe<Scalars['Date']>;
+  id: Scalars['Int'];
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  name: Scalars['String'];
+  recurrence: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   signIn: Session;
@@ -48,6 +61,7 @@ export type Profile = {
 export type Query = {
   __typename?: 'Query';
   categories: Array<Category>;
+  markers: Array<Marker>;
   user: User;
 };
 
@@ -145,7 +159,9 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Category: ResolverTypeWrapper<Category>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
+  Float: ResolverTypeWrapper<Scalars['Float']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  Marker: ResolverTypeWrapper<Marker>;
   Mutation: ResolverTypeWrapper<{}>;
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
@@ -161,7 +177,9 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   Category: Category;
   Date: Scalars['Date'];
+  Float: Scalars['Float'];
   Int: Scalars['Int'];
+  Marker: Marker;
   Mutation: {};
   Profile: Profile;
   Query: {};
@@ -183,6 +201,19 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
+export type MarkerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Marker'] = ResolversParentTypes['Marker']> = {
+  category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  latitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  longitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  recurrence?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
@@ -196,6 +227,7 @@ export type ProfileResolvers<ContextType = any, ParentType extends ResolversPare
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
+  markers?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
 };
 
@@ -213,6 +245,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 export type Resolvers<ContextType = any> = {
   Category?: CategoryResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  Marker?: MarkerResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Profile?: ProfileResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

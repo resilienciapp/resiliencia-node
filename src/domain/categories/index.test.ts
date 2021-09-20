@@ -9,8 +9,6 @@ const mockClient = client as jest.Mock
 
 const mockFindMany = jest.fn()
 
-const stubCategory = createStubCategory()
-
 describe('categories', () => {
   beforeEach(() => {
     mockClient.mockReturnValue({
@@ -29,16 +27,14 @@ describe('categories', () => {
   })
 
   it('returns the list of categories', () => {
-    mockFindMany.mockResolvedValue([stubCategory])
+    mockFindMany.mockResolvedValue([createStubCategory()])
 
     expect(categories()).resolves.toEqual([
-      {
-        created_at: new Date('2000-05-25'),
+      expect.objectContaining({
         description: 'Entrega de comida.',
         id: 1,
         name: 'Olla Popular',
-        updated_at: new Date('2000-05-25'),
-      },
+      }),
     ])
   })
 })
