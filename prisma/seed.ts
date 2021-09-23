@@ -76,11 +76,4 @@ const seed = async () => {
   console.log(users)
 }
 
-seed()
-  .catch(error => {
-    console.error(error)
-    throw error
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+seed().finally(() => prisma.$disconnect())

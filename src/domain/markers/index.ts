@@ -5,9 +5,9 @@ import {
 import { client } from 'db'
 import { Marker } from 'generated/graphql'
 
-type _Marker = DatabaseMarker & { category: DatabaseCategory }
-
-const createMarker = (marker: _Marker): Marker => ({
+const createMarker = (
+  marker: DatabaseMarker & { category: DatabaseCategory },
+): Marker => ({
   ...marker,
   expiresAt: marker.expires_at,
 })

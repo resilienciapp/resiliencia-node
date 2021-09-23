@@ -1,28 +1,12 @@
 import { AuthenticationError } from 'apollo-server-errors'
+import { ExpressContext } from 'apollo-server-express'
 import { client } from 'db'
+import { Scope } from 'domain/session'
 import { decode, Jwt, verify } from 'jsonwebtoken'
 
 export type Context = Jwt | Partial<Jwt>
 
-export enum Scope {
-  USER = 'USER',
-}
-
-interface HeadersExtended extends Headers {
-  authorization?: string
-}
-
-interface RequestExtended extends Request {
-  headers: HeadersExtended
-}
-
-interface ConnectionExtended {
-  req: RequestExtended
-}
-
-export const context = async ({
-  req,
-}: ConnectionExtended): Promise<Context> => {
+export const context = ({ req }: ExpressContext): Context => {
   try {
     const token = req.headers.authorization
 
@@ -35,7 +19,7 @@ export const context = async ({
     })
 
     return decode(token, { complete: true }) ?? {}
-  } catch (error) {
+  } catch {
     throw new AuthenticationError('UNAUTHORIZED')
   }
 }

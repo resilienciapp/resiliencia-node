@@ -1,10 +1,13 @@
 import { UserInputError } from 'apollo-server-express'
-import { Scope } from 'context'
 import { client } from 'db'
 import { encrypt } from 'domain/crypto'
 import { InternalError } from 'domain/errors'
 import { SignInInput, SignUpInput } from 'generated/graphql'
 import { sign } from 'jsonwebtoken'
+
+export enum Scope {
+  USER = 'USER',
+}
 
 enum TokenTime {
   USER = '365 days',
@@ -57,7 +60,7 @@ export const signUp = async (fields: SignUpInput) => {
     })
 
     return generateToken(user.id.toString(), [Scope.USER], TokenTime.USER)
-  } catch (_error) {
+  } catch {
     throw new InternalError('ERROR_CREATING_USER')
   }
 }

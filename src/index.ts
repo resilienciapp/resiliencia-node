@@ -13,7 +13,7 @@ const boot = async () => {
   validateEnvironment()
 
   const app = express()
-  const server = createServer(app)
+
   const schema = makeExecutableSchema({
     resolvers,
     typeDefs,
@@ -28,6 +28,8 @@ const boot = async () => {
   await apolloServer.start()
 
   apolloServer.applyMiddleware({ app })
+
+  const server = createServer(app)
 
   server.listen({ port: process.env.PORT }, () => {
     logInfo(
