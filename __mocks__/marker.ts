@@ -1,12 +1,16 @@
 import {
   Category as DatabaseCategory,
   Marker as DatabaseMarker,
+  Subscription as DatabaseSubscription,
 } from '@prisma/client'
 import { AddMarkerInput } from 'generated/graphql'
 
 import { createStubCategory } from './category'
 
-type Marker = DatabaseMarker & { category?: DatabaseCategory }
+type Marker = DatabaseMarker & {
+  category?: DatabaseCategory
+  subscription?: DatabaseSubscription[]
+}
 
 export const createStubMarker = (opts?: Partial<Marker>): Marker => ({
   category: createStubCategory(),

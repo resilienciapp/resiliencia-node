@@ -1,4 +1,10 @@
-import { Category, Marker, PrismaClient, User } from '@prisma/client'
+import {
+  Category,
+  Marker,
+  PrismaClient,
+  Subscription,
+  User,
+} from '@prisma/client'
 import { addDays } from 'date-fns'
 
 import { encrypt } from '../src/domain/crypto'
@@ -46,6 +52,21 @@ const seedMarkers: Reduced<Marker>[] = [
   },
 ]
 
+const seedSubscriptions: Reduced<Subscription>[] = [
+  {
+    marker_id: 1,
+    user_id: 1,
+  },
+  {
+    marker_id: 2,
+    user_id: 1,
+  },
+  {
+    marker_id: 1,
+    user_id: 2,
+  },
+]
+
 const seedUsers: Reduced<User>[] = [
   {
     email: 'joaquin.aguirre@fing.edu.uy',
@@ -74,6 +95,11 @@ const seed = async () => {
     seedUsers.map(data => prisma.user.create({ data })),
   )
   console.log(users)
+
+  const subscriptions = await prisma.$transaction(
+    seedSubscriptions.map(data => prisma.subscription.create({ data })),
+  )
+  console.log(subscriptions)
 }
 
 seed().finally(() => prisma.$disconnect())

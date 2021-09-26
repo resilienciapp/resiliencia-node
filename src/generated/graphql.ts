@@ -13,7 +13,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   /** Date custom scalar type */
-  Date: any;
+  Date: Date;
 };
 
 export type AddMarkerInput = {
@@ -52,6 +52,8 @@ export type Mutation = {
   addMarker: Array<Marker>;
   signIn: Session;
   signUp: Session;
+  subscribeMarker: User;
+  unsubscribeMarker: User;
 };
 
 
@@ -67,6 +69,16 @@ export type MutationSignInArgs = {
 
 export type MutationSignUpArgs = {
   input: SignUpInput;
+};
+
+
+export type MutationSubscribeMarkerArgs = {
+  input: SubscribeMarkerInput;
+};
+
+
+export type MutationUnsubscribeMarkerArgs = {
+  input: UnsubscribeMarkerInput;
 };
 
 export type Profile = {
@@ -98,10 +110,25 @@ export type SignUpInput = {
   password: Scalars['String'];
 };
 
+export type SubscribeMarkerInput = {
+  marker: Scalars['Int'];
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  date: Scalars['Date'];
+  marker: Marker;
+};
+
+export type UnsubscribeMarkerInput = {
+  marker: Scalars['Int'];
+};
+
 export type User = {
   __typename?: 'User';
   id: Scalars['Int'];
   profile: Profile;
+  subscriptions: Array<Subscription>;
 };
 
 
@@ -187,6 +214,9 @@ export type ResolversTypes = {
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
   String: ResolverTypeWrapper<Scalars['String']>;
+  SubscribeMarkerInput: SubscribeMarkerInput;
+  Subscription: ResolverTypeWrapper<{}>;
+  UnsubscribeMarkerInput: UnsubscribeMarkerInput;
   User: ResolverTypeWrapper<MinimumIdentifiableUser>;
 };
 
@@ -206,6 +236,9 @@ export type ResolversParentTypes = {
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
   String: Scalars['String'];
+  SubscribeMarkerInput: SubscribeMarkerInput;
+  Subscription: {};
+  UnsubscribeMarkerInput: UnsubscribeMarkerInput;
   User: MinimumIdentifiableUser;
 };
 
@@ -237,6 +270,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationAddMarkerArgs, 'input'>>;
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
+  subscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSubscribeMarkerArgs, 'input'>>;
+  unsubscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUnsubscribeMarkerArgs, 'input'>>;
 };
 
 export type ProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['Profile'] = ResolversParentTypes['Profile']> = {
@@ -256,9 +291,15 @@ export type SessionResolvers<ContextType = any, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  date?: SubscriptionResolver<ResolversTypes['Date'], "date", ParentType, ContextType>;
+  marker?: SubscriptionResolver<ResolversTypes['Marker'], "marker", ParentType, ContextType>;
+};
+
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   profile?: Resolver<ResolversTypes['Profile'], ParentType, ContextType>;
+  subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -270,6 +311,7 @@ export type Resolvers<ContextType = any> = {
   Profile?: ProfileResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Session?: SessionResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
 

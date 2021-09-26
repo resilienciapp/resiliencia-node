@@ -6,7 +6,7 @@ import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import { AddMarkerInput, Marker } from 'generated/graphql'
 
-const createMarker = (
+export const createMarker = (
   marker: DatabaseMarker & { category: DatabaseCategory },
 ): Marker => ({
   ...marker,
@@ -21,7 +21,7 @@ export const markers = async () => {
     },
   })
 
-  return markers.map(marker => createMarker(marker))
+  return markers.map(createMarker)
 }
 
 export const addMarker = async (fields: AddMarkerInput) => {

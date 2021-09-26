@@ -8,30 +8,32 @@ generator client {
 }
 
 model User {
-  id         Int      @id              @default(autoincrement())
-  created_at DateTime @db.Timestamp(6) @default(now())
-  updated_at DateTime @db.Timestamp(6) @default(now()) @updatedAt
-  email      String   @db.VarChar      @unique
-  password   String   @db.VarChar
-  name       String   @db.VarChar
+  id           Int            @id              @default(autoincrement())
+  created_at   DateTime       @db.Timestamp(6) @default(now())
+  updated_at   DateTime       @db.Timestamp(6) @default(now()) @updatedAt
+  email        String         @db.VarChar      @unique
+  password     String         @db.VarChar
+  name         String         @db.VarChar
+  subscription Subscription[]
 
   @@index([email])
   @@map("users")
 }
 
 model Marker {
-  id          Int       @id              @default(autoincrement())
-  created_at  DateTime  @db.Timestamp(6) @default(now())
-  updated_at  DateTime  @db.Timestamp(6) @default(now()) @updatedAt
-  expires_at  DateTime? @db.Timestamp(6) @default(now())
-  name        String    @db.VarChar
-  duration    Int
-  latitude    Float
-  longitude   Float
-  description String?   @db.VarChar
-  recurrence  String    @db.VarChar
-  category_id Int
-  category    Category  @relation(fields: [category_id], references: [id])
+  id           Int            @id              @default(autoincrement())
+  created_at   DateTime       @db.Timestamp(6) @default(now())
+  updated_at   DateTime       @db.Timestamp(6) @default(now()) @updatedAt
+  expires_at   DateTime?      @db.Timestamp(6) @default(now())
+  name         String         @db.VarChar
+  duration     Int
+  latitude     Float
+  longitude    Float
+  description  String?        @db.VarChar
+  recurrence   String         @db.VarChar
+  category_id  Int
+  category     Category       @relation(fields: [category_id], references: [id])
+  subscription Subscription[]
 
   @@index([category_id])
   @@map("markers")
@@ -46,4 +48,19 @@ model Category {
   marker      Marker[]
 
   @@map("categories")
+}
+
+model Subscription {
+  id         Int      @id              @default(autoincrement())
+  created_at DateTime @db.Timestamp(6) @default(now())
+  updated_at DateTime @db.Timestamp(6) @default(now()) @updatedAt
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+  marker_id  Int
+  marker     Marker   @relation(fields: [marker_id], references: [id])
+
+  @@index([user_id])
+  @@index([marker_id])
+  @@unique([user_id, marker_id])
+  @@map("subscriptions")
 }

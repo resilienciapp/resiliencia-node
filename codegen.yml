@@ -9,3 +9,5 @@ generates:
     config:
       mappers:
         User: 'domain/user#MinimumIdentifiableUser'
+      scalars:
+        Date: Date
