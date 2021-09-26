@@ -50,12 +50,12 @@ const seedUsers: Reduced<User>[] = [
   {
     email: 'joaquin.aguirre@fing.edu.uy',
     name: 'Joaquín Aguirre',
-    password: encrypt('password'),
+    password: encrypt('P4ssw*rd'),
   },
   {
     email: 'maria.cecilia.pirotto@fing.edu.uy',
     name: 'María Cecilia Pirotto Silvotti',
-    password: encrypt('password'),
+    password: encrypt('P4ssw*rd'),
   },
 ]
 

@@ -1,4 +1,11 @@
 import { isEmail, isEmpty } from 'class-validator'
+import { RRule } from 'rrule'
+
+const duration = (value: number) => {
+  if (value < 1) {
+    return 'INVALID_DURATION'
+  }
+}
 
 const email = (value: string) => {
   if (!isEmail(value)) {
@@ -19,8 +26,16 @@ const password = (value: string) => {
   }
 }
 
+const recurrence = (value: string) => {
+  if (!RRule.fromString(value).after(new Date())) {
+    return 'INVALID_RECURRENCE'
+  }
+}
+
 export const validator = {
+  duration,
   email,
   name,
   password,
+  recurrence,
 }

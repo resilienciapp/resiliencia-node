@@ -5,7 +5,7 @@ import {
 } from '__mocks__/user'
 import { UserInputError } from 'apollo-server-express'
 import { client } from 'db'
-import { encrypt } from 'domain/crypto'
+import { compare, encrypt } from 'domain/crypto'
 import { InternalError } from 'domain/errors'
 import { sign } from 'jsonwebtoken'
 
@@ -15,6 +15,7 @@ jest.mock('db')
 jest.mock('domain/crypto')
 jest.mock('jsonwebtoken')
 
+const mockCompare = compare as jest.Mock
 const mockClient = client as jest.Mock
 const mockEncrypt = encrypt as jest.Mock
 const mockSign = sign as jest.Mock
@@ -46,7 +47,7 @@ describe('signIn', () => {
   })
 
   it('throws an error if the password is incorrect', () => {
-    mockEncrypt.mockReturnValue('differentEncryptedPassword')
+    mockCompare.mockReturnValue(false)
     mockFindUnique.mockResolvedValue(stubUser)
 
     expect(signIn(stubSignInInput)).rejects.toThrowError(
@@ -56,7 +57,7 @@ describe('signIn', () => {
 
   describe('success case', () => {
     beforeEach(() => {
-      mockEncrypt.mockReturnValue('encryptedPassword')
+      mockCompare.mockReturnValue(true)
       mockFindUnique.mockResolvedValue(stubUser)
       mockSign.mockReturnValue('token')
     })

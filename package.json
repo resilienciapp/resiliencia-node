@@ -33,6 +33,7 @@
     "http": "^0.0.1-security",
     "lodash": "^4.17.21",
     "logdna": "^3.5.2",
+    "rrule": "^2.6.8",
     "ts-node": "^10.2.1",
     "tsconfig-paths": "^3.11.0"
   },

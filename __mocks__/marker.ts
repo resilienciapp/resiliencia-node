@@ -2,6 +2,7 @@ import {
   Category as DatabaseCategory,
   Marker as DatabaseMarker,
 } from '@prisma/client'
+import { AddMarkerInput } from 'generated/graphql'
 
 import { createStubCategory } from './category'
 
@@ -20,5 +21,19 @@ export const createStubMarker = (opts?: Partial<Marker>): Marker => ({
   name: 'Residencia Universitaria Sagrada Familia',
   recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
   updated_at: new Date('2000-05-25T00:00:00.000Z'),
+  ...opts,
+})
+
+export const createStubAddMarkerInput = (
+  opts?: Partial<AddMarkerInput>,
+): AddMarkerInput => ({
+  category: 1,
+  description: 'Vení y llevate un plato de comida caliente.',
+  duration: 180,
+  expiresAt: null,
+  latitude: -34.895365,
+  longitude: -56.18769,
+  name: 'Residencia Universitaria Sagrada Familia',
+  recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
   ...opts,
 })

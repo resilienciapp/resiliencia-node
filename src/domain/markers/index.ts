@@ -3,7 +3,8 @@ import {
   Marker as DatabaseMarker,
 } from '@prisma/client'
 import { client } from 'db'
-import { Marker } from 'generated/graphql'
+import { InternalError } from 'domain/errors'
+import { AddMarkerInput, Marker } from 'generated/graphql'
 
 const createMarker = (
   marker: DatabaseMarker & { category: DatabaseCategory },
@@ -21,4 +22,25 @@ export const markers = async () => {
   })
 
   return markers.map(marker => createMarker(marker))
+}
+
+export const addMarker = async (fields: AddMarkerInput) => {
+  try {
+    await client().marker.create({
+      data: {
+        category_id: fields.category,
+        description: fields.description,
+        duration: fields.duration,
+        expires_at: fields.expiresAt,
+        latitude: fields.latitude,
+        longitude: fields.longitude,
+        name: fields.name,
+        recurrence: fields.recurrence,
+      },
+    })
+  } catch {
+    throw new InternalError('ERROR_ADDING_MARKER')
+  }
+
+  return markers()
 }

@@ -16,6 +16,17 @@ export type Scalars = {
   Date: any;
 };
 
+export type AddMarkerInput = {
+  category: Scalars['Int'];
+  description?: Maybe<Scalars['String']>;
+  duration: Scalars['Int'];
+  expiresAt?: Maybe<Scalars['Date']>;
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  name: Scalars['String'];
+  recurrence: Scalars['String'];
+};
+
 export type Category = {
   __typename?: 'Category';
   description?: Maybe<Scalars['String']>;
@@ -38,8 +49,14 @@ export type Marker = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addMarker: Array<Marker>;
   signIn: Session;
   signUp: Session;
+};
+
+
+export type MutationAddMarkerArgs = {
+  input: AddMarkerInput;
 };
 
 
@@ -156,6 +173,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AddMarkerInput: AddMarkerInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Category: ResolverTypeWrapper<Category>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
@@ -174,6 +192,7 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AddMarkerInput: AddMarkerInput;
   Boolean: Scalars['Boolean'];
   Category: Category;
   Date: Scalars['Date'];
@@ -215,6 +234,7 @@ export type MarkerResolvers<ContextType = any, ParentType extends ResolversParen
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationAddMarkerArgs, 'input'>>;
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
 };

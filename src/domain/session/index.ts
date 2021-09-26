@@ -1,6 +1,6 @@
 import { UserInputError } from 'apollo-server-express'
 import { client } from 'db'
-import { encrypt } from 'domain/crypto'
+import { compare, encrypt } from 'domain/crypto'
 import { InternalError } from 'domain/errors'
 import { SignInInput, SignUpInput } from 'generated/graphql'
 import { sign } from 'jsonwebtoken'
@@ -42,7 +42,7 @@ export const signIn = async (fields: SignInInput) => {
     throw new UserInputError('INVALID_CREDENTIALS')
   }
 
-  if (user.password !== encrypt(fields.password)) {
+  if (!compare(fields.password, user.password)) {
     throw new UserInputError('INVALID_CREDENTIALS')
   }
 

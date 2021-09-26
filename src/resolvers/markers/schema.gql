@@ -10,6 +10,21 @@ type Marker {
   recurrence: String!
 }
 
+input AddMarkerInput {
+  category: Int!
+  description: String
+  duration: Int!
+  expiresAt: Date
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  recurrence: String!
+}
+
+type Mutation {
+  addMarker(input: AddMarkerInput!): [Marker!]!
+}
+
 type Query {
   markers: [Marker!]!
 }

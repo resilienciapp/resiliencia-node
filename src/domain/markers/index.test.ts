@@ -1,14 +1,65 @@
-import { createStubMarker } from '__mocks__/marker'
+import { createStubAddMarkerInput, createStubMarker } from '__mocks__/marker'
 import { client } from 'db'
+import { InternalError } from 'domain/errors'
 import MockDate from 'mockdate'
 
-import { markers } from '.'
+import { addMarker, markers } from '.'
 
 jest.mock('db')
 
 const mockClient = client as jest.Mock
 
+const mockCreate = jest.fn()
 const mockFindMany = jest.fn()
+
+const marker = createStubMarker()
+const stubAddMarkerInput = createStubAddMarkerInput()
+
+describe('addMarker', () => {
+  beforeEach(() => {
+    mockClient.mockReturnValue({
+      marker: { create: mockCreate, findMany: mockFindMany },
+    })
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('calls the find function with the correct parameters', async () => {
+    mockFindMany.mockResolvedValue([])
+
+    await addMarker(stubAddMarkerInput)
+
+    expect(mockCreate).toHaveBeenCalledWith({
+      data: {
+        category_id: 1,
+        description: 'Vení y llevate un plato de comida caliente.',
+        duration: 180,
+        expires_at: null,
+        latitude: -34.895365,
+        longitude: -56.18769,
+        name: 'Residencia Universitaria Sagrada Familia',
+        recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+      },
+    })
+  })
+
+  it('returns the list of markers', () => {
+    mockFindMany.mockResolvedValue([])
+
+    expect(addMarker(stubAddMarkerInput)).resolves.toEqual([])
+  })
+
+  it('throws and error if marker creation fails', () => {
+    mockCreate.mockRejectedValue(new Error('ERROR'))
+
+    expect(addMarker(stubAddMarkerInput)).rejects.toThrowError(
+      new InternalError('ERROR_ADDING_MARKER'),
+    )
+    expect(mockFindMany).not.toHaveBeenCalled()
+  })
+})
 
 describe('markers', () => {
   beforeAll(() => {
@@ -49,7 +100,7 @@ describe('markers', () => {
   })
 
   it('returns the list of markers', () => {
-    mockFindMany.mockResolvedValue([createStubMarker()])
+    mockFindMany.mockResolvedValue([marker])
 
     expect(markers()).resolves.toEqual([
       expect.objectContaining({
