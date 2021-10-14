@@ -29,7 +29,7 @@ describe('addMarker', () => {
   it('calls the find function with the correct parameters', async () => {
     mockFindMany.mockResolvedValue([])
 
-    await addMarker(stubAddMarkerInput)
+    await addMarker(stubAddMarkerInput, [])
 
     expect(mockCreate).toHaveBeenCalledWith({
       data: {
@@ -40,6 +40,7 @@ describe('addMarker', () => {
         latitude: -34.895365,
         longitude: -56.18769,
         name: 'Residencia Universitaria Sagrada Familia',
+        owners: [],
         recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
       },
     })
@@ -48,13 +49,13 @@ describe('addMarker', () => {
   it('returns the list of markers', () => {
     mockFindMany.mockResolvedValue([])
 
-    expect(addMarker(stubAddMarkerInput)).resolves.toEqual([])
+    expect(addMarker(stubAddMarkerInput, [])).resolves.toEqual([])
   })
 
   it('throws and error if marker creation fails', () => {
     mockCreate.mockRejectedValue(new Error('ERROR'))
 
-    expect(addMarker(stubAddMarkerInput)).rejects.toThrowError(
+    expect(addMarker(stubAddMarkerInput, [])).rejects.toThrowError(
       new InternalError('ERROR_ADDING_MARKER'),
     )
     expect(mockFindMany).not.toHaveBeenCalled()

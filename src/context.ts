@@ -24,6 +24,9 @@ export const context = ({ req }: ExpressContext): Context => {
   }
 }
 
+export const isAuthenticatedUser = (context: Context) =>
+  Boolean(context.payload?.sub)
+
 export const requireUser = async (context: Context) => {
   if (!context.payload || !context.payload.sub) {
     throw new AuthenticationError('UNAUTHORIZED')

@@ -33,6 +33,7 @@ model Marker {
   recurrence   String         @db.VarChar
   category_id  Int
   category     Category       @relation(fields: [category_id], references: [id])
+  owners       Int[]
   subscription Subscription[]
 
   @@index([category_id])

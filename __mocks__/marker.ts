@@ -23,6 +23,7 @@ export const createStubMarker = (opts?: Partial<Marker>): Marker => ({
   latitude: -34.895365,
   longitude: -56.18769,
   name: 'Residencia Universitaria Sagrada Familia',
+  owners: [],
   recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
   updated_at: new Date('2000-05-25T00:00:00.000Z'),
   ...opts,

@@ -38,6 +38,7 @@ const seedMarkers: Reduced<Marker>[] = [
     latitude: -34.895365,
     longitude: -56.18769,
     name: 'Residencia Universitaria Sagrada Familia',
+    owners: [1],
     recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
   },
   {
@@ -48,6 +49,7 @@ const seedMarkers: Reduced<Marker>[] = [
     latitude: -34.90578,
     longitude: -56.191679,
     name: 'Plaza Cagancha',
+    owners: [],
     recurrence: 'RRULE:FREQ=DAILY;BYDAY=SA,SU;BYHOUR=17',
   },
 ]

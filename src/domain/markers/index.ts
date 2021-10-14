@@ -1,6 +1,7 @@
 import {
   Category as DatabaseCategory,
   Marker as DatabaseMarker,
+  User,
 } from '@prisma/client'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
@@ -24,7 +25,10 @@ export const markers = async () => {
   return markers.map(createMarker)
 }
 
-export const addMarker = async (fields: AddMarkerInput) => {
+export const addMarker = async (
+  fields: AddMarkerInput,
+  owners: User['id'][],
+) => {
   try {
     await client().marker.create({
       data: {
@@ -35,6 +39,7 @@ export const addMarker = async (fields: AddMarkerInput) => {
         latitude: fields.latitude,
         longitude: fields.longitude,
         name: fields.name,
+        owners,
         recurrence: fields.recurrence,
       },
     })
