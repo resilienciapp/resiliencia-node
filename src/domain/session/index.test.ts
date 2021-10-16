@@ -25,6 +25,7 @@ const mockFindUnique = jest.fn()
 
 const stubSignInInput = createStubSignInInput()
 const stubSignUpInput = createStubSignUpInput()
+
 const stubUser = createStubUser()
 
 describe('signIn', () => {

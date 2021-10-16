@@ -15,6 +15,7 @@ export const createMarker = (
 ): Marker => ({
   ...marker,
   expiresAt: marker.expires_at,
+  isSubscribed: false,
   requests: [],
 })
 
@@ -52,4 +53,20 @@ export const addMarker = async (
   }
 
   return markers()
+}
+
+export const isSubscribed = async (
+  marker: MinimumIdentifiableMarker,
+  user: User,
+) => {
+  const subscription = await client().subscription.findUnique({
+    where: {
+      user_id_marker_id: {
+        marker_id: marker.id,
+        user_id: user.id,
+      },
+    },
+  })
+
+  return Boolean(subscription)
 }

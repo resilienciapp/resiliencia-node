@@ -27,6 +27,7 @@ const mockFindUnique = jest.fn()
 
 const stubSubscribeMarkerInput = createStubSubscribeMarkerInput()
 const stubUnsubscribeMarkerInput = createStubUnsubscribeMarkerInput()
+
 const stubSubscription = createStubSubscription()
 const stubUser = createStubUser()
 
@@ -87,7 +88,7 @@ describe('getSubscriptions', () => {
 
     expect(mockFindMany).toHaveBeenCalledWith({
       include: { category: true, subscription: true },
-      where: { subscription: { every: { user_id: 1 } } },
+      where: { subscription: { some: { user_id: 1 } } },
     })
   })
 
@@ -123,7 +124,7 @@ describe('getSubscriptions', () => {
   it('throws and error if data is inconsistent', async () => {
     mockFindMany.mockResolvedValue([
       createStubMarker({
-        subscription: [stubSubscription, stubSubscription],
+        subscription: [createStubSubscription({ user_id: 2 })],
       }),
     ])
 

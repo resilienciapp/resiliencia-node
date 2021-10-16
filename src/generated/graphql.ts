@@ -50,6 +50,7 @@ export type Marker = {
   duration: Scalars['Int'];
   expiresAt?: Maybe<Scalars['Date']>;
   id: Scalars['Int'];
+  isSubscribed: Scalars['Boolean'];
   latitude: Scalars['Float'];
   longitude: Scalars['Float'];
   name: Scalars['String'];
@@ -287,6 +288,7 @@ export type MarkerResolvers<ContextType = any, ParentType extends ResolversParen
   duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isSubscribed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   latitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   longitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

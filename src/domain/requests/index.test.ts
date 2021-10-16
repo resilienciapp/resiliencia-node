@@ -14,6 +14,7 @@ const mockCreate = jest.fn()
 const mockFindMany = jest.fn()
 
 const stubAddRequestInput = createStubAddRequestInput()
+
 const stubRequest = createStubRequest()
 const stubUser = createStubUser()
 

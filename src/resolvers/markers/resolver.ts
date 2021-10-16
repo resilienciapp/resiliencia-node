@@ -1,11 +1,19 @@
 import { Context, isAuthenticatedUser, requireUser } from 'context'
-import { addMarker, markers } from 'domain/markers'
+import { addMarker, isSubscribed, markers } from 'domain/markers'
 import { requests } from 'domain/requests'
 import { validateAddMarkerFields } from 'domain/validation'
 import { Resolvers } from 'generated/graphql'
 
 export const resolvers: Resolvers<Context> = {
   Marker: {
+    isSubscribed: async (marker, _, context) => {
+      if (isAuthenticatedUser(context)) {
+        const { user } = await requireUser(context)
+        return isSubscribed(marker, user)
+      }
+
+      return false
+    },
     requests: marker => requests(marker),
   },
   Mutation: {

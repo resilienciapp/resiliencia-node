@@ -41,13 +41,18 @@ const createSubscription = (
     category: Category
     subscription: DatabaseSubscription[]
   },
+  userId: number,
 ): Subscription => {
-  if (1 < marker.subscription.length) {
+  const subscription = marker.subscription.find(
+    ({ user_id }) => user_id === userId,
+  )
+
+  if (!subscription) {
     throw new InternalError('ERROR_FORMATTING_SUBSCRIPTION')
   }
 
   return {
-    date: marker.subscription[0].created_at,
+    date: subscription.created_at,
     marker: createMarker(marker),
   }
 }
@@ -55,10 +60,10 @@ const createSubscription = (
 export const getSubscriptions = async ({ id }: MinimumIdentifiableUser) => {
   const markers = await client().marker.findMany({
     include: { category: true, subscription: true },
-    where: { subscription: { every: { user_id: id } } },
+    where: { subscription: { some: { user_id: id } } },
   })
 
-  return markers.map(createSubscription)
+  return markers.map(_ => createSubscription(_, id))
 }
 
 export const subscribeMarker = async (

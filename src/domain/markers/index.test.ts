@@ -1,9 +1,11 @@
 import { createStubAddMarkerInput, createStubMarker } from '__mocks__/marker'
+import { createStubSubscription } from '__mocks__/subscription'
+import { createStubUser } from '__mocks__/user'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import MockDate from 'mockdate'
 
-import { addMarker, markers } from '.'
+import { addMarker, isSubscribed, markers } from '.'
 
 jest.mock('db')
 
@@ -11,9 +13,12 @@ const mockClient = client as jest.Mock
 
 const mockCreate = jest.fn()
 const mockFindMany = jest.fn()
+const mockFindUnique = jest.fn()
+
+const stubAddMarkerInput = createStubAddMarkerInput()
 
 const stubMarker = createStubMarker()
-const stubAddMarkerInput = createStubAddMarkerInput()
+const stubUser = createStubUser()
 
 describe('addMarker', () => {
   beforeEach(() => {
@@ -59,6 +64,30 @@ describe('addMarker', () => {
       new InternalError('ERROR_ADDING_MARKER'),
     )
     expect(mockFindMany).not.toHaveBeenCalled()
+  })
+})
+
+describe('isSubscribed', () => {
+  beforeEach(() => {
+    mockClient.mockReturnValue({
+      subscription: { findUnique: mockFindUnique },
+    })
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('returns true if the user is subscribed', () => {
+    mockFindUnique.mockResolvedValue(createStubSubscription())
+
+    expect(isSubscribed(stubMarker, stubUser)).resolves.toBeTruthy()
+  })
+
+  it('returns false if the user is not subscribed', () => {
+    mockFindUnique.mockResolvedValue(null)
+
+    expect(isSubscribed(stubMarker, stubUser)).resolves.toBeFalsy()
   })
 })
 
