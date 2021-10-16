@@ -1,9 +1,11 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { MinimumIdentifiableMarker } from 'domain/markers';
 import { MinimumIdentifiableUser } from 'domain/user';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -27,6 +29,13 @@ export type AddMarkerInput = {
   recurrence: Scalars['String'];
 };
 
+export type AddRequestInput = {
+  description: Scalars['String'];
+  expiresAt?: Maybe<Scalars['Date']>;
+  marker: Scalars['Int'];
+  notifiable: Scalars['Boolean'];
+};
+
 export type Category = {
   __typename?: 'Category';
   description?: Maybe<Scalars['String']>;
@@ -45,11 +54,13 @@ export type Marker = {
   longitude: Scalars['Float'];
   name: Scalars['String'];
   recurrence: Scalars['String'];
+  requests: Array<Request>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   addMarker: Array<Marker>;
+  addRequest: Marker;
   signIn: Session;
   signUp: Session;
   subscribeMarker: User;
@@ -59,6 +70,11 @@ export type Mutation = {
 
 export type MutationAddMarkerArgs = {
   input: AddMarkerInput;
+};
+
+
+export type MutationAddRequestArgs = {
+  input: AddRequestInput;
 };
 
 
@@ -91,6 +107,14 @@ export type Query = {
   __typename?: 'Query';
   categories: Array<Category>;
   markers: Array<Marker>;
+  user: User;
+};
+
+export type Request = {
+  __typename?: 'Request';
+  description: Scalars['String'];
+  expiresAt?: Maybe<Scalars['Date']>;
+  id: Scalars['Int'];
   user: User;
 };
 
@@ -201,15 +225,17 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   AddMarkerInput: AddMarkerInput;
+  AddRequestInput: AddRequestInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Category: ResolverTypeWrapper<Category>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
-  Marker: ResolverTypeWrapper<Marker>;
+  Marker: ResolverTypeWrapper<MinimumIdentifiableMarker>;
   Mutation: ResolverTypeWrapper<{}>;
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
+  Request: ResolverTypeWrapper<Omit<Request, 'user'> & { user: ResolversTypes['User'] }>;
   Session: ResolverTypeWrapper<Session>;
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
@@ -223,15 +249,17 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   AddMarkerInput: AddMarkerInput;
+  AddRequestInput: AddRequestInput;
   Boolean: Scalars['Boolean'];
   Category: Category;
   Date: Scalars['Date'];
   Float: Scalars['Float'];
   Int: Scalars['Int'];
-  Marker: Marker;
+  Marker: MinimumIdentifiableMarker;
   Mutation: {};
   Profile: Profile;
   Query: {};
+  Request: Omit<Request, 'user'> & { user: ResolversParentTypes['User'] };
   Session: Session;
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
@@ -263,11 +291,13 @@ export type MarkerResolvers<ContextType = any, ParentType extends ResolversParen
   longitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   recurrence?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requests?: Resolver<Array<ResolversTypes['Request']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationAddMarkerArgs, 'input'>>;
+  addRequest?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationAddRequestArgs, 'input'>>;
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
   subscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSubscribeMarkerArgs, 'input'>>;
@@ -284,6 +314,14 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   markers?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+};
+
+export type RequestResolvers<ContextType = any, ParentType extends ResolversParentTypes['Request'] = ResolversParentTypes['Request']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SessionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Session'] = ResolversParentTypes['Session']> = {
@@ -310,6 +348,7 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   Profile?: ProfileResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Request?: RequestResolvers<ContextType>;
   Session?: SessionResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

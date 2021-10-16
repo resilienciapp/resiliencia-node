@@ -6,12 +6,16 @@ import {
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import { AddMarkerInput, Marker } from 'generated/graphql'
+import { OptionalExceptFor } from 'types'
+
+export type MinimumIdentifiableMarker = OptionalExceptFor<Marker, 'id'>
 
 export const createMarker = (
   marker: DatabaseMarker & { category: DatabaseCategory },
 ): Marker => ({
   ...marker,
   expiresAt: marker.expires_at,
+  requests: [],
 })
 
 export const markers = async () => {

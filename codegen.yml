@@ -8,6 +8,7 @@ generates:
       - 'typescript-resolvers'
     config:
       mappers:
+        Marker: 'domain/markers#MinimumIdentifiableMarker'
         User: 'domain/user#MinimumIdentifiableUser'
       scalars:
         Date: Date

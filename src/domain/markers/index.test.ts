@@ -12,7 +12,7 @@ const mockClient = client as jest.Mock
 const mockCreate = jest.fn()
 const mockFindMany = jest.fn()
 
-const marker = createStubMarker()
+const stubMarker = createStubMarker()
 const stubAddMarkerInput = createStubAddMarkerInput()
 
 describe('addMarker', () => {
@@ -101,7 +101,7 @@ describe('markers', () => {
   })
 
   it('returns the list of markers', () => {
-    mockFindMany.mockResolvedValue([marker])
+    mockFindMany.mockResolvedValue([stubMarker])
 
     expect(markers()).resolves.toEqual([
       expect.objectContaining({

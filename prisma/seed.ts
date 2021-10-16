@@ -2,6 +2,7 @@ import {
   Category,
   Marker,
   PrismaClient,
+  Request,
   Subscription,
   User,
 } from '@prisma/client'
@@ -54,6 +55,24 @@ const seedMarkers: Reduced<Marker>[] = [
   },
 ]
 
+const seedRequests: Reduced<Request>[] = [
+  {
+    description:
+      'Necesitamos cualquier verdura para cocinar. Recibimos hasta las 19 horas.',
+    expires_at: null,
+    marker_id: 1,
+    notifiable: true,
+    user_id: 1,
+  },
+  {
+    description: '¡Necesitamos pollo!',
+    expires_at: addDays(new Date(), 5),
+    marker_id: 1,
+    notifiable: false,
+    user_id: 1,
+  },
+]
+
 const seedSubscriptions: Reduced<Subscription>[] = [
   {
     marker_id: 1,
@@ -102,6 +121,11 @@ const seed = async () => {
     seedSubscriptions.map(data => prisma.subscription.create({ data })),
   )
   console.log(subscriptions)
+
+  const requests = await prisma.$transaction(
+    seedRequests.map(data => prisma.request.create({ data })),
+  )
+  console.log(requests)
 }
 
 seed().finally(() => prisma.$disconnect())

@@ -8,6 +8,7 @@ type Marker {
   longitude: Float!
   name: String!
   recurrence: String!
+  requests: [Request!]!
 }
 
 input AddMarkerInput {

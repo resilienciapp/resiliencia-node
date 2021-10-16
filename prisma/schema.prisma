@@ -14,6 +14,7 @@ model User {
   email        String         @db.VarChar      @unique
   password     String         @db.VarChar
   name         String         @db.VarChar
+  request      Request[]
   subscription Subscription[]
 
   @@index([email])
@@ -24,7 +25,7 @@ model Marker {
   id           Int            @id              @default(autoincrement())
   created_at   DateTime       @db.Timestamp(6) @default(now())
   updated_at   DateTime       @db.Timestamp(6) @default(now()) @updatedAt
-  expires_at   DateTime?      @db.Timestamp(6) @default(now())
+  expires_at   DateTime?      @db.Timestamp(6)
   name         String         @db.VarChar
   duration     Int
   latitude     Float
@@ -34,6 +35,7 @@ model Marker {
   category_id  Int
   category     Category       @relation(fields: [category_id], references: [id])
   owners       Int[]
+  request      Request[]
   subscription Subscription[]
 
   @@index([category_id])
@@ -64,4 +66,19 @@ model Subscription {
   @@index([marker_id])
   @@unique([user_id, marker_id])
   @@map("subscriptions")
+}
+
+model Request {
+  id          Int       @id              @default(autoincrement())
+  created_at  DateTime  @db.Timestamp(6) @default(now())
+  updated_at  DateTime  @db.Timestamp(6) @default(now()) @updatedAt
+  expires_at  DateTime? @db.Timestamp(6)
+  description String    @db.VarChar
+  notifiable  Boolean
+  user_id     Int
+  user        User      @relation(fields: [user_id], references: [id])
+  marker_id   Int
+  marker      Marker    @relation(fields: [marker_id], references: [id])
+
+  @@map("requests")
 }

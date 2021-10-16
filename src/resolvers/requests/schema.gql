@@ -1,0 +1,17 @@
+type Request {
+  description: String!
+  expiresAt: Date
+  id: Int!
+  user: User!
+}
+
+input AddRequestInput {
+  description: String!
+  expiresAt: Date
+  marker: Int!
+  notifiable: Boolean!
+}
+
+type Mutation {
+  addRequest(input: AddRequestInput!): Marker!
+}
