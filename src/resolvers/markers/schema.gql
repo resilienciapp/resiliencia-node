@@ -1,3 +1,9 @@
+enum MarkerState {
+  ACTIVE
+  PENDING_CONFIRMATION
+  INACTIVE
+}
+
 type Marker {
   category: Category!
   description: String
@@ -10,6 +16,7 @@ type Marker {
   name: String!
   recurrence: String!
   requests: [Request!]!
+  state: MarkerState!
 }
 
 input AddMarkerInput {
@@ -23,8 +30,13 @@ input AddMarkerInput {
   recurrence: String!
 }
 
+input ConfirmMarkerInput {
+  marker: Int!
+}
+
 type Mutation {
   addMarker(input: AddMarkerInput!): [Marker!]!
+  confirmMarker(input: ConfirmMarkerInput!): [Marker!]!
 }
 
 type Query {

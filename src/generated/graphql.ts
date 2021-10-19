@@ -43,6 +43,10 @@ export type Category = {
   name: Scalars['String'];
 };
 
+export type ConfirmMarkerInput = {
+  marker: Scalars['Int'];
+};
+
 export type Marker = {
   __typename?: 'Marker';
   category: Category;
@@ -56,12 +60,20 @@ export type Marker = {
   name: Scalars['String'];
   recurrence: Scalars['String'];
   requests: Array<Request>;
+  state: MarkerState;
 };
+
+export enum MarkerState {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  PendingConfirmation = 'PENDING_CONFIRMATION'
+}
 
 export type Mutation = {
   __typename?: 'Mutation';
   addMarker: Array<Marker>;
   addRequest: Marker;
+  confirmMarker: Array<Marker>;
   signIn: Session;
   signUp: Session;
   subscribeMarker: User;
@@ -76,6 +88,11 @@ export type MutationAddMarkerArgs = {
 
 export type MutationAddRequestArgs = {
   input: AddRequestInput;
+};
+
+
+export type MutationConfirmMarkerArgs = {
+  input: ConfirmMarkerInput;
 };
 
 
@@ -229,10 +246,12 @@ export type ResolversTypes = {
   AddRequestInput: AddRequestInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Category: ResolverTypeWrapper<Category>;
+  ConfirmMarkerInput: ConfirmMarkerInput;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Marker: ResolverTypeWrapper<MinimumIdentifiableMarker>;
+  MarkerState: MarkerState;
   Mutation: ResolverTypeWrapper<{}>;
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
@@ -253,6 +272,7 @@ export type ResolversParentTypes = {
   AddRequestInput: AddRequestInput;
   Boolean: Scalars['Boolean'];
   Category: Category;
+  ConfirmMarkerInput: ConfirmMarkerInput;
   Date: Scalars['Date'];
   Float: Scalars['Float'];
   Int: Scalars['Int'];
@@ -294,12 +314,14 @@ export type MarkerResolvers<ContextType = any, ParentType extends ResolversParen
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   recurrence?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   requests?: Resolver<Array<ResolversTypes['Request']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['MarkerState'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationAddMarkerArgs, 'input'>>;
   addRequest?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationAddRequestArgs, 'input'>>;
+  confirmMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationConfirmMarkerArgs, 'input'>>;
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
   subscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSubscribeMarkerArgs, 'input'>>;

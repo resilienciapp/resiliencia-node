@@ -33,6 +33,7 @@ const seedCategories: Reduced<Category>[] = [
 const seedMarkers: Reduced<Marker>[] = [
   {
     category_id: 1,
+    confirmed_at: addDays(new Date(), 1),
     description: 'Vení y llevate un plato de comida caliente.',
     duration: 180,
     expires_at: null,
@@ -44,6 +45,7 @@ const seedMarkers: Reduced<Marker>[] = [
   },
   {
     category_id: 2,
+    confirmed_at: addDays(new Date(), 1),
     description: 'Espacio para merendar y conversar.',
     duration: 120,
     expires_at: addDays(new Date(), 10),

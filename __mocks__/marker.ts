@@ -15,6 +15,7 @@ type Marker = DatabaseMarker & {
 export const createStubMarker = (opts?: Partial<Marker>): Marker => ({
   category: createStubCategory(),
   category_id: 1,
+  confirmed_at: new Date('2000-05-25T00:00:00.000Z'),
   created_at: new Date('2000-05-25T00:00:00.000Z'),
   description: 'Vení y llevate un plato de comida caliente.',
   duration: 180,

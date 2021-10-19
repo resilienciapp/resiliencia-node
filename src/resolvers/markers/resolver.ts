@@ -1,5 +1,5 @@
 import { Context, isAuthenticatedUser, requireUser } from 'context'
-import { addMarker, isSubscribed, markers } from 'domain/markers'
+import { addMarker, confirmMarker, isSubscribed, markers } from 'domain/markers'
 import { requests } from 'domain/requests'
 import { validateAddMarkerFields } from 'domain/validation'
 import { Resolvers } from 'generated/graphql'
@@ -28,6 +28,11 @@ export const resolvers: Resolvers<Context> = {
       validateAddMarkerFields(input)
 
       return addMarker(input, usersId)
+    },
+    confirmMarker: async (_, { input }, context) => {
+      await requireUser(context)
+
+      return confirmMarker(input)
     },
   },
   Query: {
