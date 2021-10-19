@@ -5,7 +5,6 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -133,7 +132,7 @@ export type Request = {
   description: Scalars['String'];
   expiresAt?: Maybe<Scalars['Date']>;
   id: Scalars['Int'];
-  user: User;
+  user: Profile;
 };
 
 export type Session = {
@@ -255,7 +254,7 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
-  Request: ResolverTypeWrapper<Omit<Request, 'user'> & { user: ResolversTypes['User'] }>;
+  Request: ResolverTypeWrapper<Request>;
   Session: ResolverTypeWrapper<Session>;
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
@@ -280,7 +279,7 @@ export type ResolversParentTypes = {
   Mutation: {};
   Profile: Profile;
   Query: {};
-  Request: Omit<Request, 'user'> & { user: ResolversParentTypes['User'] };
+  Request: Request;
   Session: Session;
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
@@ -344,7 +343,7 @@ export type RequestResolvers<ContextType = any, ParentType extends ResolversPare
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['Profile'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

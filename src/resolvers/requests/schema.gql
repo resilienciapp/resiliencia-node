@@ -2,7 +2,7 @@ type Request {
   description: String!
   expiresAt: Date
   id: Int!
-  user: User!
+  user: Profile!
 }
 
 input AddRequestInput {

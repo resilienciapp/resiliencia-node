@@ -1,7 +1,7 @@
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import { MinimumIdentifiableMarker } from 'domain/markers'
-import { AddRequestInput, Request, User } from 'generated/graphql'
+import { AddRequestInput, Request } from 'generated/graphql'
 
 import {
   Request as DatabaseRequest,
@@ -13,7 +13,7 @@ const createRequest = (
 ): Request => ({
   ...request,
   expiresAt: request.expires_at,
-  user: { id: request.user.id } as User,
+  user: request.user,
 })
 
 export const requests = async ({ id }: MinimumIdentifiableMarker) => {

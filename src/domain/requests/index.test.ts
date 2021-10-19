@@ -107,7 +107,10 @@ describe('requests', () => {
           'Necesitamos cualquier verdura para cocinar. Recibimos hasta las 19 horas.',
         expiresAt: null,
         id: 1,
-        user: expect.objectContaining({ id: 1 }),
+        user: expect.objectContaining({
+          email: 'joaquin.aguirre@fing.edu.uy',
+          name: 'Joaquín Aguirre',
+        }),
       }),
     ])
   })
