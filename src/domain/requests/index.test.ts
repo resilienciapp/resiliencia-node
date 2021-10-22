@@ -1,10 +1,12 @@
 import { createStubAddRequestInput, createStubRequest } from '__mocks__/request'
+import { createStubSubscription } from '__mocks__/subscription'
 import { createStubUser } from '__mocks__/user'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import MockDate from 'mockdate'
 
 import { addRequest, requests } from '.'
+import { NotificationType } from '.prisma/client'
 
 jest.mock('db')
 
@@ -12,17 +14,25 @@ const mockClient = client as jest.Mock
 
 const mockCreate = jest.fn()
 const mockFindMany = jest.fn()
+const mockTransaction = jest.fn()
 
 const stubAddRequestInput = createStubAddRequestInput()
 
 const stubRequest = createStubRequest()
+const stubSubscription = createStubSubscription()
 const stubUser = createStubUser()
 
 describe('addRequest', () => {
   beforeEach(() => {
     mockClient.mockReturnValue({
+      $transaction: mockTransaction,
+      notification: { create: mockCreate },
       request: { create: mockCreate },
+      subscription: { findMany: mockFindMany },
     })
+    mockTransaction.mockImplementation((_: Promise<unknown>[]) =>
+      Promise.all(_),
+    )
   })
 
   afterEach(() => {
@@ -38,7 +48,7 @@ describe('addRequest', () => {
           'Necesitamos cualquier verdura para cocinar. Recibimos hasta las 19 horas.',
         expires_at: null,
         marker_id: 1,
-        notifiable: true,
+        notifiable: false,
         user_id: 1,
       },
     })
@@ -48,6 +58,31 @@ describe('addRequest', () => {
     expect(addRequest(stubAddRequestInput, stubUser)).resolves.toEqual({
       id: 1,
     })
+  })
+
+  it('finds the subscribers if it is a notifiable request', async () => {
+    mockCreate.mockResolvedValue(stubRequest)
+    mockFindMany.mockResolvedValue([])
+
+    await addRequest(createStubAddRequestInput({ notifiable: true }), stubUser)
+
+    expect(mockFindMany).toHaveBeenCalledWith({ where: { marker_id: 1 } })
+  })
+
+  it('creates the notifications for the subscribers', async () => {
+    mockCreate.mockResolvedValue(stubRequest)
+    mockCreate.mockResolvedValue({
+      request_id: stubRequest.id,
+      type: NotificationType.push_notification,
+      user_id: stubSubscription.user_id,
+    })
+    mockFindMany.mockResolvedValue([stubSubscription])
+
+    await addRequest(createStubAddRequestInput({ notifiable: true }), stubUser)
+
+    expect(mockTransaction).toHaveBeenCalledWith([
+      Promise.resolve(expect.objectContaining(expect.any)),
+    ])
   })
 
   it('throws and error if request creation fails', () => {

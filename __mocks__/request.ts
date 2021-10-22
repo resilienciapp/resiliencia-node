@@ -31,6 +31,6 @@ export const createStubAddRequestInput = (
     'Necesitamos cualquier verdura para cocinar. Recibimos hasta las 19 horas.',
   expiresAt: null,
   marker: 1,
-  notifiable: true,
+  notifiable: false,
   ...opts,
 })

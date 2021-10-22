@@ -14,6 +14,7 @@ model User {
   email        String         @db.VarChar      @unique
   password     String         @db.VarChar
   name         String         @db.VarChar
+  notification Notification[]
   request      Request[]
   subscription Subscription[]
 
@@ -70,16 +71,35 @@ model Subscription {
 }
 
 model Request {
-  id          Int       @id              @default(autoincrement())
-  created_at  DateTime  @db.Timestamp(6) @default(now())
-  updated_at  DateTime  @db.Timestamp(6) @default(now()) @updatedAt
-  expires_at  DateTime? @db.Timestamp(6)
-  description String    @db.VarChar
-  notifiable  Boolean
-  user_id     Int
-  user        User      @relation(fields: [user_id], references: [id])
-  marker_id   Int
-  marker      Marker    @relation(fields: [marker_id], references: [id])
+  id           Int            @id              @default(autoincrement())
+  created_at   DateTime       @db.Timestamp(6) @default(now())
+  updated_at   DateTime       @db.Timestamp(6) @default(now()) @updatedAt
+  expires_at   DateTime?      @db.Timestamp(6)
+  description  String         @db.VarChar
+  notifiable   Boolean
+  user_id      Int
+  user         User           @relation(fields: [user_id], references: [id])
+  marker_id    Int
+  marker       Marker         @relation(fields: [marker_id], references: [id])
+  notification Notification[]
 
   @@map("requests")
+}
+
+model Notification {
+  id          Int              @id              @default(autoincrement())
+  created_at  DateTime         @db.Timestamp(6) @default(now())
+  updated_at  DateTime         @db.Timestamp(6) @default(now()) @updatedAt
+  user_id     Int
+  user        User             @relation(fields: [user_id], references: [id])
+  request_id  Int
+  request     Request          @relation(fields: [request_id], references: [id])
+  type        NotificationType
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  email
+  push_notification
 }
