@@ -1,5 +1,9 @@
-import { User } from '@prisma/client'
+import { Device as DatabaseDevice, User as DatabaseUser } from '@prisma/client'
 import { SignInInput, SignUpInput } from 'generated/graphql'
+
+type User = DatabaseUser & {
+  device?: DatabaseDevice[]
+}
 
 export const createStubUser = (opts?: Partial<User>): User => ({
   created_at: new Date('2000-05-25T00:00:00.000Z'),

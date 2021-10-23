@@ -1,12 +1,12 @@
+import { createStubDevice } from '__mocks__/device'
 import { createStubAddRequestInput, createStubRequest } from '__mocks__/request'
-import { createStubSubscription } from '__mocks__/subscription'
 import { createStubUser } from '__mocks__/user'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import MockDate from 'mockdate'
 
 import { addRequest, requests } from '.'
-import { NotificationType } from '.prisma/client'
+import { NotificationType, User } from '.prisma/client'
 
 jest.mock('db')
 
@@ -18,8 +18,8 @@ const mockTransaction = jest.fn()
 
 const stubAddRequestInput = createStubAddRequestInput()
 
+const stubDevice = createStubDevice()
 const stubRequest = createStubRequest()
-const stubSubscription = createStubSubscription()
 const stubUser = createStubUser()
 
 describe('addRequest', () => {
@@ -28,7 +28,7 @@ describe('addRequest', () => {
       $transaction: mockTransaction,
       notification: { create: mockCreate },
       request: { create: mockCreate },
-      subscription: { findMany: mockFindMany },
+      user: { findMany: mockFindMany },
     })
     mockTransaction.mockImplementation((_: Promise<unknown>[]) =>
       Promise.all(_),
@@ -66,17 +66,23 @@ describe('addRequest', () => {
 
     await addRequest(createStubAddRequestInput({ notifiable: true }), stubUser)
 
-    expect(mockFindMany).toHaveBeenCalledWith({ where: { marker_id: 1 } })
+    expect(mockFindMany).toHaveBeenCalledWith({
+      include: { device: true },
+      where: { subscription: { some: { marker_id: 1 } } },
+    })
   })
 
   it('creates the notifications for the subscribers', async () => {
     mockCreate.mockResolvedValue(stubRequest)
     mockCreate.mockResolvedValue({
+      device_id: stubDevice.id,
       request_id: stubRequest.id,
       type: NotificationType.push_notification,
-      user_id: stubSubscription.user_id,
+      user_id: stubUser.id,
     })
-    mockFindMany.mockResolvedValue([stubSubscription])
+    mockFindMany.mockResolvedValue([
+      { ...stubUser, device: [stubDevice] } as User,
+    ])
 
     await addRequest(createStubAddRequestInput({ notifiable: true }), stubUser)
 

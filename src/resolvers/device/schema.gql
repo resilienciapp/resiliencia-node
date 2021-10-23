@@ -1,0 +1,19 @@
+enum Platform {
+  android
+  ios
+}
+
+input RegisterDeviceTokenInput {
+  deviceId: String!
+  platform: Platform!
+  token: String!
+}
+
+input UnregisterDeviceTokenInput {
+  deviceId: String!
+}
+
+type Mutation {
+  registerDeviceToken(input: RegisterDeviceTokenInput!): User!
+  unregisterDeviceToken(input: UnregisterDeviceTokenInput!): User!
+}

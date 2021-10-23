@@ -73,9 +73,11 @@ export type Mutation = {
   addMarker: Array<Marker>;
   addRequest: Marker;
   confirmMarker: Array<Marker>;
+  registerDeviceToken: User;
   signIn: Session;
   signUp: Session;
   subscribeMarker: User;
+  unregisterDeviceToken: User;
   unsubscribeMarker: User;
 };
 
@@ -95,6 +97,11 @@ export type MutationConfirmMarkerArgs = {
 };
 
 
+export type MutationRegisterDeviceTokenArgs = {
+  input: RegisterDeviceTokenInput;
+};
+
+
 export type MutationSignInArgs = {
   input: SignInInput;
 };
@@ -110,9 +117,19 @@ export type MutationSubscribeMarkerArgs = {
 };
 
 
+export type MutationUnregisterDeviceTokenArgs = {
+  input: UnregisterDeviceTokenInput;
+};
+
+
 export type MutationUnsubscribeMarkerArgs = {
   input: UnsubscribeMarkerInput;
 };
+
+export enum Platform {
+  Android = 'android',
+  Ios = 'ios'
+}
 
 export type Profile = {
   __typename?: 'Profile';
@@ -125,6 +142,12 @@ export type Query = {
   categories: Array<Category>;
   markers: Array<Marker>;
   user: User;
+};
+
+export type RegisterDeviceTokenInput = {
+  deviceId: Scalars['String'];
+  platform: Platform;
+  token: Scalars['String'];
 };
 
 export type Request = {
@@ -159,6 +182,10 @@ export type Subscription = {
   __typename?: 'Subscription';
   date: Scalars['Date'];
   marker: Marker;
+};
+
+export type UnregisterDeviceTokenInput = {
+  deviceId: Scalars['String'];
 };
 
 export type UnsubscribeMarkerInput = {
@@ -252,8 +279,10 @@ export type ResolversTypes = {
   Marker: ResolverTypeWrapper<MinimumIdentifiableMarker>;
   MarkerState: MarkerState;
   Mutation: ResolverTypeWrapper<{}>;
+  Platform: Platform;
   Profile: ResolverTypeWrapper<Profile>;
   Query: ResolverTypeWrapper<{}>;
+  RegisterDeviceTokenInput: RegisterDeviceTokenInput;
   Request: ResolverTypeWrapper<Request>;
   Session: ResolverTypeWrapper<Session>;
   SignInInput: SignInInput;
@@ -261,6 +290,7 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']>;
   SubscribeMarkerInput: SubscribeMarkerInput;
   Subscription: ResolverTypeWrapper<{}>;
+  UnregisterDeviceTokenInput: UnregisterDeviceTokenInput;
   UnsubscribeMarkerInput: UnsubscribeMarkerInput;
   User: ResolverTypeWrapper<MinimumIdentifiableUser>;
 };
@@ -279,6 +309,7 @@ export type ResolversParentTypes = {
   Mutation: {};
   Profile: Profile;
   Query: {};
+  RegisterDeviceTokenInput: RegisterDeviceTokenInput;
   Request: Request;
   Session: Session;
   SignInInput: SignInInput;
@@ -286,6 +317,7 @@ export type ResolversParentTypes = {
   String: Scalars['String'];
   SubscribeMarkerInput: SubscribeMarkerInput;
   Subscription: {};
+  UnregisterDeviceTokenInput: UnregisterDeviceTokenInput;
   UnsubscribeMarkerInput: UnsubscribeMarkerInput;
   User: MinimumIdentifiableUser;
 };
@@ -321,9 +353,11 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   addMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationAddMarkerArgs, 'input'>>;
   addRequest?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationAddRequestArgs, 'input'>>;
   confirmMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationConfirmMarkerArgs, 'input'>>;
+  registerDeviceToken?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRegisterDeviceTokenArgs, 'input'>>;
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
   subscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSubscribeMarkerArgs, 'input'>>;
+  unregisterDeviceToken?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUnregisterDeviceTokenArgs, 'input'>>;
   unsubscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUnsubscribeMarkerArgs, 'input'>>;
 };
 

@@ -45,20 +45,26 @@ export const addRequest = async (
     })
 
     if (fields.notifiable) {
-      const subscriptions = await client().subscription.findMany({
-        where: { marker_id: fields.marker },
+      const users = await client().user.findMany({
+        include: { device: true },
+        where: { subscription: { some: { marker_id: fields.marker } } },
       })
 
       await client().$transaction(
-        subscriptions.map(({ user_id }) =>
-          client().notification.create({
-            data: {
-              request_id: request.id,
-              type: NotificationType.push_notification,
-              user_id,
-            },
-          }),
-        ),
+        users
+          .map(({ device: devices, id }) =>
+            devices.map(device =>
+              client().notification.create({
+                data: {
+                  device_id: device.id,
+                  request_id: request.id,
+                  type: NotificationType.push_notification,
+                  user_id: id,
+                },
+              }),
+            ),
+          )
+          .flat(),
       )
     }
   } catch {
