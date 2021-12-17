@@ -1,5 +1,10 @@
+type Event {
+  marker: Marker!
+}
+
 type Subscription {
   date: Date!
+  id: Int!
   marker: Marker!
 }
 
@@ -9,6 +14,7 @@ type Profile {
 }
 
 type User {
+  events: [Event!]!
   id: Int!
   profile: Profile!
   subscriptions: [Subscription!]!

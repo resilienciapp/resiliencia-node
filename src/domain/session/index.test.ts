@@ -30,14 +30,10 @@ const stubUser = createStubUser()
 
 describe('signIn', () => {
   beforeEach(() => {
-    mockClient.mockReturnValue({
-      user: { findUnique: mockFindUnique },
-    })
+    mockClient.mockReturnValue({ user: { findUnique: mockFindUnique } })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('throws an error if the email is incorrect', () => {
     mockFindUnique.mockResolvedValue(null)
@@ -63,9 +59,7 @@ describe('signIn', () => {
       mockSign.mockReturnValue('token')
     })
 
-    afterEach(() => {
-      jest.clearAllMocks()
-    })
+    afterEach(jest.clearAllMocks)
 
     it('searches the correct user', async () => {
       await signIn(stubSignInInput)
@@ -104,9 +98,7 @@ describe('signUp', () => {
     })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('throws an error if user creation fails', () => {
     mockCreate.mockRejectedValue('ERROR')
@@ -123,9 +115,7 @@ describe('signUp', () => {
       mockSign.mockReturnValue('token')
     })
 
-    afterEach(() => {
-      jest.clearAllMocks()
-    })
+    afterEach(jest.clearAllMocks)
 
     it('creates the user with the correct information', async () => {
       await signUp(stubSignUpInput)

@@ -11,14 +11,10 @@ const mockFindMany = jest.fn()
 
 describe('categories', () => {
   beforeEach(() => {
-    mockClient.mockReturnValue({
-      category: { findMany: mockFindMany },
-    })
+    mockClient.mockReturnValue({ category: { findMany: mockFindMany } })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('returns an empty list of categories', () => {
     mockFindMany.mockResolvedValue([])

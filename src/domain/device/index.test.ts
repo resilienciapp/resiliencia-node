@@ -36,9 +36,7 @@ describe('registerDeviceToken', () => {
     })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindFirst.mockResolvedValue(null)
@@ -110,9 +108,7 @@ describe('unregisterDeviceToken', () => {
     mockFindFirst.mockResolvedValue(stubDevice)
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
     await unregisterDeviceToken(stubUnregisterDeviceTokenInput, stubUser)

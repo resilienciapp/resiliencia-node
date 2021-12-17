@@ -5,6 +5,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -46,6 +47,11 @@ export type ConfirmMarkerInput = {
   marker: Scalars['Int'];
 };
 
+export type Event = {
+  __typename?: 'Event';
+  marker: Marker;
+};
+
 export type Marker = {
   __typename?: 'Marker';
   category: Category;
@@ -53,7 +59,6 @@ export type Marker = {
   duration: Scalars['Int'];
   expiresAt?: Maybe<Scalars['Date']>;
   id: Scalars['Int'];
-  isSubscribed: Scalars['Boolean'];
   latitude: Scalars['Float'];
   longitude: Scalars['Float'];
   name: Scalars['String'];
@@ -152,6 +157,7 @@ export type RegisterDeviceTokenInput = {
 
 export type Request = {
   __typename?: 'Request';
+  createdAt: Scalars['Date'];
   description: Scalars['String'];
   expiresAt?: Maybe<Scalars['Date']>;
   id: Scalars['Int'];
@@ -181,6 +187,7 @@ export type SubscribeMarkerInput = {
 export type Subscription = {
   __typename?: 'Subscription';
   date: Scalars['Date'];
+  id: Scalars['Int'];
   marker: Marker;
 };
 
@@ -194,6 +201,7 @@ export type UnsubscribeMarkerInput = {
 
 export type User = {
   __typename?: 'User';
+  events: Array<Event>;
   id: Scalars['Int'];
   profile: Profile;
   subscriptions: Array<Subscription>;
@@ -274,6 +282,7 @@ export type ResolversTypes = {
   Category: ResolverTypeWrapper<Category>;
   ConfirmMarkerInput: ConfirmMarkerInput;
   Date: ResolverTypeWrapper<Scalars['Date']>;
+  Event: ResolverTypeWrapper<Omit<Event, 'marker'> & { marker: ResolversTypes['Marker'] }>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Marker: ResolverTypeWrapper<MinimumIdentifiableMarker>;
@@ -303,6 +312,7 @@ export type ResolversParentTypes = {
   Category: Category;
   ConfirmMarkerInput: ConfirmMarkerInput;
   Date: Scalars['Date'];
+  Event: Omit<Event, 'marker'> & { marker: ResolversParentTypes['Marker'] };
   Float: Scalars['Float'];
   Int: Scalars['Int'];
   Marker: MinimumIdentifiableMarker;
@@ -333,13 +343,17 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
+export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = {
+  marker?: Resolver<ResolversTypes['Marker'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MarkerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Marker'] = ResolversParentTypes['Marker']> = {
   category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  isSubscribed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   latitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   longitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -374,6 +388,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type RequestResolvers<ContextType = any, ParentType extends ResolversParentTypes['Request'] = ResolversParentTypes['Request']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -388,10 +403,12 @@ export type SessionResolvers<ContextType = any, ParentType extends ResolversPare
 
 export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
   date?: SubscriptionResolver<ResolversTypes['Date'], "date", ParentType, ContextType>;
+  id?: SubscriptionResolver<ResolversTypes['Int'], "id", ParentType, ContextType>;
   marker?: SubscriptionResolver<ResolversTypes['Marker'], "marker", ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  events?: Resolver<Array<ResolversTypes['Event']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   profile?: Resolver<ResolversTypes['Profile'], ParentType, ContextType>;
   subscriptions?: Resolver<Array<ResolversTypes['Subscription']>, ParentType, ContextType>;
@@ -401,6 +418,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 export type Resolvers<ContextType = any> = {
   Category?: CategoryResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  Event?: EventResolvers<ContextType>;
   Marker?: MarkerResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Profile?: ProfileResolvers<ContextType>;

@@ -13,6 +13,7 @@ const createRequest = (
   request: DatabaseRequest & { user: DatabaseUser },
 ): Request => ({
   ...request,
+  createdAt: request.created_at,
   expiresAt: request.expires_at,
   user: request.user,
 })

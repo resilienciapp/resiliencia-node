@@ -10,6 +10,7 @@ import { client } from 'db'
 import { InternalError } from 'domain/errors'
 
 import {
+  getEvents,
   getProfile,
   getSubscriptions,
   subscribeMarker,
@@ -31,14 +32,55 @@ const stubUnsubscribeMarkerInput = createStubUnsubscribeMarkerInput()
 const stubSubscription = createStubSubscription()
 const stubUser = createStubUser()
 
+describe('getEvents', () => {
+  beforeEach(() => {
+    mockClient.mockReturnValue({ marker: { findMany: mockFindMany } })
+  })
+
+  afterEach(jest.clearAllMocks)
+
+  it('calls the find function with the correct parameters', async () => {
+    mockFindMany.mockResolvedValue([])
+
+    await getEvents(stubUser)
+
+    expect(mockFindMany).toHaveBeenCalledWith({
+      include: { category: true },
+      where: { owners: { has: 1 } },
+    })
+  })
+
+  it('returns the user events', () => {
+    mockFindMany.mockResolvedValue([createStubMarker()])
+
+    expect(getEvents(stubUser)).resolves.toEqual([
+      expect.objectContaining({
+        marker: expect.objectContaining({
+          category: expect.objectContaining({
+            description: 'Entrega de comida.',
+            id: 1,
+            name: 'Olla Popular',
+          }),
+          description: 'Vení y llevate un plato de comida caliente.',
+          duration: 180,
+          expiresAt: null,
+          id: 1,
+          latitude: -34.895365,
+          longitude: -56.18769,
+          name: 'Residencia Universitaria Sagrada Familia',
+          recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+        }),
+      }),
+    ])
+  })
+})
+
 describe('getProfile', () => {
   beforeEach(() => {
     mockClient.mockReturnValue({ user: { findUnique: mockFindUnique } })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('throws an error if the user does not exist', async () => {
     mockFindUnique.mockResolvedValue(null)
@@ -72,14 +114,10 @@ describe('getProfile', () => {
 
 describe('getSubscriptions', () => {
   beforeEach(() => {
-    mockClient.mockReturnValue({
-      marker: { findMany: mockFindMany },
-    })
+    mockClient.mockReturnValue({ marker: { findMany: mockFindMany } })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindMany.mockResolvedValue([])
@@ -102,6 +140,7 @@ describe('getSubscriptions', () => {
     expect(getSubscriptions(stubUser)).resolves.toEqual([
       expect.objectContaining({
         date: new Date('2000-05-25T00:00:00.000Z'),
+        id: 1,
         marker: expect.objectContaining({
           category: expect.objectContaining({
             description: 'Entrega de comida.',
@@ -141,9 +180,7 @@ describe('subscribeMarker', () => {
     })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindUnique.mockResolvedValue(stubSubscription)
@@ -206,9 +243,7 @@ describe('unsubscribeMarker', () => {
     })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindUnique.mockResolvedValue(null)

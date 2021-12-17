@@ -10,7 +10,6 @@ type Marker {
   duration: Int!
   expiresAt: Date
   id: Int!
-  isSubscribed: Boolean!
   latitude: Float!
   longitude: Float!
   name: String!

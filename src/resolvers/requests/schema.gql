@@ -1,4 +1,5 @@
 type Request {
+  createdAt: Date!
   description: String!
   expiresAt: Date
   id: Int!

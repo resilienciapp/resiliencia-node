@@ -1,12 +1,10 @@
 import { createStubAddMarkerInput, createStubMarker } from '__mocks__/marker'
-import { createStubSubscription } from '__mocks__/subscription'
-import { createStubUser } from '__mocks__/user'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import { MarkerState } from 'generated/graphql'
 import MockDate from 'mockdate'
 
-import { addMarker, confirmMarker, isSubscribed, markers } from '.'
+import { addMarker, confirmMarker, markers } from '.'
 
 jest.mock('db')
 
@@ -20,7 +18,6 @@ const mockUpdate = jest.fn()
 const stubAddMarkerInput = createStubAddMarkerInput()
 
 const stubMarker = createStubMarker()
-const stubUser = createStubUser()
 
 describe('addMarker', () => {
   beforeEach(() => {
@@ -29,9 +26,7 @@ describe('addMarker', () => {
     })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindMany.mockResolvedValue([])
@@ -87,13 +82,9 @@ describe('confirmMarker', () => {
     mockFindUnique.mockResolvedValue(stubMarker)
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
-  afterAll(() => {
-    MockDate.reset()
-  })
+  afterAll(MockDate.reset)
 
   it('calls the update function with the correct parameters', async () => {
     await confirmMarker({ marker: 1 })
@@ -154,48 +145,18 @@ describe('confirmMarker', () => {
   })
 })
 
-describe('isSubscribed', () => {
-  beforeEach(() => {
-    mockClient.mockReturnValue({
-      subscription: { findUnique: mockFindUnique },
-    })
-  })
-
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
-
-  it('returns true if the user is subscribed', () => {
-    mockFindUnique.mockResolvedValue(createStubSubscription())
-
-    expect(isSubscribed(stubMarker, stubUser)).resolves.toBeTruthy()
-  })
-
-  it('returns false if the user is not subscribed', () => {
-    mockFindUnique.mockResolvedValue(null)
-
-    expect(isSubscribed(stubMarker, stubUser)).resolves.toBeFalsy()
-  })
-})
-
 describe('markers', () => {
   beforeAll(() => {
     MockDate.set(new Date('2000-09-20T00:00:00.000Z'))
   })
 
   beforeEach(() => {
-    mockClient.mockReturnValue({
-      marker: { findMany: mockFindMany },
-    })
+    mockClient.mockReturnValue({ marker: { findMany: mockFindMany } })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
-  afterAll(() => {
-    MockDate.reset()
-  })
+  afterAll(MockDate.reset)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindMany.mockResolvedValue([])

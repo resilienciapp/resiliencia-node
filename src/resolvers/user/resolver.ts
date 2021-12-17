@@ -1,5 +1,6 @@
 import { Context, requireUser } from 'context'
 import {
+  getEvents,
   getProfile,
   getSubscriptions,
   subscribeMarker,
@@ -28,6 +29,7 @@ export const resolvers: Resolvers<Context> = {
     },
   },
   User: {
+    events: user => getEvents(user),
     profile: user => getProfile(user),
     subscriptions: user => getSubscriptions(user),
   },

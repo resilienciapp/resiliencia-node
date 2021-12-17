@@ -35,9 +35,7 @@ describe('addRequest', () => {
     )
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
     await addRequest(stubAddRequestInput, stubUser)
@@ -111,13 +109,9 @@ describe('requests', () => {
     })
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+  afterEach(jest.clearAllMocks)
 
-  afterAll(() => {
-    MockDate.reset()
-  })
+  afterAll(MockDate.reset)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindMany.mockResolvedValue([])

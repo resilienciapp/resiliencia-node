@@ -53,8 +53,22 @@ const createSubscription = (
 
   return {
     date: subscription.created_at,
+    id: subscription.id,
     marker: createMarker(marker),
   }
+}
+
+const createEvent = (marker: Marker & { category: Category }) => ({
+  marker: createMarker(marker),
+})
+
+export const getEvents = async ({ id }: MinimumIdentifiableUser) => {
+  const markers = await client().marker.findMany({
+    include: { category: true },
+    where: { owners: { has: id } },
+  })
+
+  return markers.map(createEvent)
 }
 
 export const getSubscriptions = async ({ id }: MinimumIdentifiableUser) => {

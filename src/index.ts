@@ -2,6 +2,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema'
 import { ApolloServer } from 'apollo-server-express'
 import { context } from 'context'
 import { logInfo } from 'domain/logger'
+import { initializeFirebase } from 'domain/notification'
 import express from 'express'
 import { createServer } from 'http'
 import { plugins } from 'plugins'
@@ -30,6 +31,8 @@ const boot = async () => {
   apolloServer.applyMiddleware({ app })
 
   const server = createServer(app)
+
+  initializeFirebase()
 
   server.listen({ port: process.env.PORT }, () => {
     logInfo(
