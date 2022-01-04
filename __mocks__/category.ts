@@ -1,6 +1,7 @@
 import { Category } from '@prisma/client'
 
 export const createStubCategory = (opts?: Partial<Category>): Category => ({
+  color: '#DB441B',
   created_at: new Date('2000-05-25T00:00:00.000Z'),
   description: 'Entrega de comida.',
   id: 1,

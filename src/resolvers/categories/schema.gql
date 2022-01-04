@@ -1,4 +1,5 @@
 type Category {
+  color: String!
   description: String
   id: Int!
   name: String!

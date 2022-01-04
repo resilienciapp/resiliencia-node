@@ -27,6 +27,7 @@ describe('categories', () => {
 
     expect(categories()).resolves.toEqual([
       expect.objectContaining({
+        color: '#DB441B',
         description: 'Entrega de comida.',
         id: 1,
         name: 'Olla Popular',

@@ -38,6 +38,7 @@ export type AddRequestInput = {
 
 export type Category = {
   __typename?: 'Category';
+  color: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   id: Scalars['Int'];
   name: Scalars['String'];
@@ -333,6 +334,7 @@ export type ResolversParentTypes = {
 };
 
 export type CategoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
+  color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

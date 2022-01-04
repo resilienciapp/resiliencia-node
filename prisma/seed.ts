@@ -16,15 +16,18 @@ type Reduced<T> = Omit<T, 'created_at' | 'id' | 'updated_at'>
 
 const seedCategories: Reduced<Category>[] = [
   {
+    color: '#DB441B',
     description: 'Entrega de comida.',
     name: 'Olla Popular',
   },
   {
+    color: '#DBBB31',
     description:
       'Espacio al aire libre donde sentarse a comer, almorzar o merendar.',
     name: 'Merendero',
   },
   {
+    color: '#44B11C',
     description: 'Otro tipo de evento.',
     name: 'Otro',
   },

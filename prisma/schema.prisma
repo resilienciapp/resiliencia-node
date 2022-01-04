@@ -51,6 +51,7 @@ model Category {
   updated_at  DateTime @db.Timestamp(6) @default(now()) @updatedAt
   name        String   @db.VarChar      @unique
   description String?  @db.VarChar
+  color       String   @db.VarChar      @default("#000000")
   marker      Marker[]
 
   @@map("categories")
