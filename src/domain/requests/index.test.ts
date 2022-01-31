@@ -1,46 +1,55 @@
 import { createStubDevice } from '__mocks__/device'
+import { createStubMarker } from '__mocks__/marker'
 import { createStubAddRequestInput, createStubRequest } from '__mocks__/request'
 import { createStubUser } from '__mocks__/user'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
+import { Notification, sendNotifications } from 'domain/notification'
 import MockDate from 'mockdate'
 
 import { addRequest, requests } from '.'
-import { NotificationType, User } from '.prisma/client'
+import { NotificationType } from '.prisma/client'
 
 jest.mock('db')
+jest.mock('domain/notification')
 
 const mockClient = client as jest.Mock
 
-const mockCreate = jest.fn()
+const mockCreateNotification = jest.fn()
+const mockCreateRequest = jest.fn()
 const mockFindMany = jest.fn()
+const mockFindUnique = jest.fn()
 const mockTransaction = jest.fn()
 
 const stubAddRequestInput = createStubAddRequestInput()
 
 const stubDevice = createStubDevice()
+const stubMarker = createStubMarker()
 const stubRequest = createStubRequest()
 const stubUser = createStubUser()
+const stubUserWithDevice = createStubUser({ device: [stubDevice] })
 
 describe('addRequest', () => {
   beforeEach(() => {
     mockClient.mockReturnValue({
       $transaction: mockTransaction,
-      notification: { create: mockCreate },
-      request: { create: mockCreate },
+      marker: { findUnique: mockFindUnique },
+      notification: { create: mockCreateNotification },
+      request: { create: mockCreateRequest },
       user: { findMany: mockFindMany },
     })
     mockTransaction.mockImplementation((_: Promise<unknown>[]) =>
       Promise.all(_),
     )
+    mockFindUnique.mockResolvedValue(stubMarker)
   })
 
   afterEach(jest.clearAllMocks)
 
-  it('calls the find function with the correct parameters', async () => {
+  it('calls the create function with the correct parameters', async () => {
     await addRequest(stubAddRequestInput, stubUser)
 
-    expect(mockCreate).toHaveBeenCalledWith({
+    expect(mockCreateRequest).toHaveBeenCalledWith({
       data: {
         description:
           'Necesitamos cualquier verdura para cocinar. Recibimos hasta las 19 horas.',
@@ -49,17 +58,20 @@ describe('addRequest', () => {
         notifiable: false,
         user_id: 1,
       },
+      include: {
+        marker: true,
+      },
     })
   })
 
   it('returns the corresponding marker', () => {
-    expect(addRequest(stubAddRequestInput, stubUser)).resolves.toEqual({
-      id: 1,
-    })
+    expect(addRequest(stubAddRequestInput, stubUser)).resolves.toEqual(
+      expect.objectContaining(stubMarker),
+    )
   })
 
   it('finds the subscribers if it is a notifiable request', async () => {
-    mockCreate.mockResolvedValue(stubRequest)
+    mockCreateRequest.mockResolvedValue(stubRequest)
     mockFindMany.mockResolvedValue([])
 
     await addRequest(createStubAddRequestInput({ notifiable: true }), stubUser)
@@ -71,26 +83,36 @@ describe('addRequest', () => {
   })
 
   it('creates the notifications for the subscribers', async () => {
-    mockCreate.mockResolvedValue(stubRequest)
-    mockCreate.mockResolvedValue({
+    const users = [stubUserWithDevice, stubUserWithDevice]
+
+    mockCreateRequest.mockResolvedValue(stubRequest)
+    mockFindMany.mockResolvedValue(users)
+    mockCreateNotification.mockResolvedValue({
       device_id: stubDevice.id,
       request_id: stubRequest.id,
       type: NotificationType.push_notification,
       user_id: stubUser.id,
     })
-    mockFindMany.mockResolvedValue([
-      { ...stubUser, device: [stubDevice] } as User,
-    ])
 
     await addRequest(createStubAddRequestInput({ notifiable: true }), stubUser)
 
-    expect(mockTransaction).toHaveBeenCalledWith([
-      Promise.resolve(expect.objectContaining(expect.any)),
-    ])
+    expect(mockCreateNotification).toHaveBeenCalledTimes(2)
+    expect(mockTransaction).toHaveBeenCalled()
+    expect(sendNotifications).toHaveBeenCalledWith(
+      users,
+      Notification.MARKER_REQUEST,
+      {
+        description:
+          'Necesitamos cualquier verdura para cocinar. Recibimos hasta las 19 horas.',
+        markerId: '1',
+        markerName: 'Residencia Universitaria Sagrada Familia',
+        requestId: '1',
+      },
+    )
   })
 
   it('throws and error if request creation fails', () => {
-    mockCreate.mockRejectedValue(new Error('ERROR'))
+    mockCreateRequest.mockRejectedValue(new Error('ERROR'))
 
     expect(addRequest(stubAddRequestInput, stubUser)).rejects.toThrowError(
       new InternalError('ERROR_CREATING_REQUEST'),

@@ -1,7 +1,6 @@
 import { createStubAddMarkerInput, createStubMarker } from '__mocks__/marker'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
-import { MarkerState } from 'generated/graphql'
 import MockDate from 'mockdate'
 
 import { addMarker, confirmMarker, markers } from '.'
@@ -20,6 +19,10 @@ const stubAddMarkerInput = createStubAddMarkerInput()
 const stubMarker = createStubMarker()
 
 describe('addMarker', () => {
+  beforeAll(() => {
+    MockDate.set(new Date('2000-09-20T00:00:00.000Z'))
+  })
+
   beforeEach(() => {
     mockClient.mockReturnValue({
       marker: { create: mockCreate, findMany: mockFindMany },
@@ -27,6 +30,8 @@ describe('addMarker', () => {
   })
 
   afterEach(jest.clearAllMocks)
+
+  afterAll(MockDate.reset)
 
   it('calls the find function with the correct parameters', async () => {
     mockFindMany.mockResolvedValue([])
@@ -38,12 +43,13 @@ describe('addMarker', () => {
         category_id: 1,
         description: 'Vení y llevate un plato de comida caliente.',
         duration: 180,
-        expires_at: null,
+        expires_at: new Date('2000-10-04T00:00:00.000Z'),
         latitude: -34.895365,
         longitude: -56.18769,
         name: 'Residencia Universitaria Sagrada Familia',
         owners: [],
         recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+        time_zone: 'America/Montevideo',
       },
     })
   })
@@ -90,7 +96,7 @@ describe('confirmMarker', () => {
     await confirmMarker({ marker: 1 })
 
     expect(mockUpdate).toHaveBeenCalledWith({
-      data: { confirmed_at: new Date('2000-09-20T00:00:00.000Z') },
+      data: { expires_at: new Date('2000-10-04T00:00:00.000Z') },
       where: { id: 1 },
     })
   })
@@ -111,7 +117,7 @@ describe('confirmMarker', () => {
         longitude: -56.18769,
         name: 'Residencia Universitaria Sagrada Familia',
         recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
-        state: MarkerState.Inactive,
+        timeZone: 'America/Montevideo',
       }),
     ])
     expect(mockFindMany).toHaveBeenCalled()
@@ -119,16 +125,6 @@ describe('confirmMarker', () => {
 
   it('throws and error if the marker does not exist', () => {
     mockFindUnique.mockResolvedValue(null)
-
-    expect(confirmMarker({ marker: 1 })).rejects.toThrowError(
-      new InternalError('INVALID_MARKER'),
-    )
-  })
-
-  it('throws and error if the marker has already expired', () => {
-    mockFindUnique.mockResolvedValue(
-      createStubMarker({ expires_at: new Date('2000-09-15T00:00:00.000Z') }),
-    )
 
     expect(confirmMarker({ marker: 1 })).rejects.toThrowError(
       new InternalError('INVALID_MARKER'),
@@ -195,7 +191,7 @@ describe('markers', () => {
         longitude: -56.18769,
         name: 'Residencia Universitaria Sagrada Familia',
         recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
-        state: MarkerState.Inactive,
+        timeZone: 'America/Montevideo',
       }),
     ])
   })

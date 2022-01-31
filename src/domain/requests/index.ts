@@ -1,10 +1,12 @@
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
-import { MinimumIdentifiableMarker } from 'domain/markers'
+import { createMarker, MinimumIdentifiableMarker } from 'domain/markers'
+import { Notification, sendNotifications } from 'domain/notification'
 import { AddRequestInput, Request } from 'generated/graphql'
 
 import {
   NotificationType,
+  Prisma,
   Request as DatabaseRequest,
   User as DatabaseUser,
 } from '.prisma/client'
@@ -43,6 +45,9 @@ export const addRequest = async (
         notifiable: fields.notifiable,
         user_id: user.id,
       },
+      include: {
+        marker: true,
+      },
     })
 
     if (fields.notifiable) {
@@ -51,26 +56,47 @@ export const addRequest = async (
         where: { subscription: { some: { marker_id: fields.marker } } },
       })
 
-      await client().$transaction(
-        users
-          .map(({ device: devices, id }) =>
-            devices.map(device =>
-              client().notification.create({
-                data: {
-                  device_id: device.id,
-                  request_id: request.id,
-                  type: NotificationType.push_notification,
-                  user_id: id,
-                },
-              }),
-            ),
+      const transactions: Prisma.Prisma__NotificationClient<unknown>[] = []
+
+      users.forEach(({ device: devices, id }) => {
+        devices.forEach(device => {
+          transactions.push(
+            client().notification.create({
+              data: {
+                device_id: device.id,
+                request_id: request.id,
+                type: NotificationType.push_notification,
+                user_id: id,
+              },
+            }),
           )
-          .flat(),
-      )
+        })
+      })
+
+      await Promise.all([
+        client().$transaction(transactions),
+        sendNotifications(users, Notification.MARKER_REQUEST, {
+          description: request.description,
+          markerId: request.marker_id.toString(),
+          markerName: request.marker.name,
+          requestId: request.id.toString(),
+        }),
+      ])
     }
   } catch {
     throw new InternalError('ERROR_CREATING_REQUEST')
   }
 
-  return { id: fields.marker }
+  return client()
+    .marker.findUnique({
+      include: { category: true },
+      where: { id: fields.marker },
+    })
+    .then(marker => {
+      if (!marker) {
+        throw new InternalError('ERROR_CREATING_REQUEST')
+      }
+
+      return createMarker(marker)
+    })
 }

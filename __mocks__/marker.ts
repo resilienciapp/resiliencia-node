@@ -15,7 +15,6 @@ type Marker = DatabaseMarker & {
 export const createStubMarker = (opts?: Partial<Marker>): Marker => ({
   category: createStubCategory(),
   category_id: 1,
-  confirmed_at: new Date('2000-05-25T00:00:00.000Z'),
   created_at: new Date('2000-05-25T00:00:00.000Z'),
   description: 'Vení y llevate un plato de comida caliente.',
   duration: 180,
@@ -26,6 +25,7 @@ export const createStubMarker = (opts?: Partial<Marker>): Marker => ({
   name: 'Residencia Universitaria Sagrada Familia',
   owners: [],
   recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+  time_zone: 'America/Montevideo',
   updated_at: new Date('2000-05-25T00:00:00.000Z'),
   ...opts,
 })
@@ -41,5 +41,6 @@ export const createStubAddMarkerInput = (
   longitude: -56.18769,
   name: 'Residencia Universitaria Sagrada Familia',
   recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+  timeZone: 'America/Montevideo',
   ...opts,
 })

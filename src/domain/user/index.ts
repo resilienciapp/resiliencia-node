@@ -93,6 +93,18 @@ export const subscribeMarker = async (
     },
   })
 
+  const marker = await client().marker.findUnique({
+    where: { id: input.marker },
+  })
+
+  if (!marker) {
+    throw new InternalError('ERROR_SUBSCRIBING_MARKER')
+  }
+
+  if (marker.owners.find(owner => owner === user.id)) {
+    throw new InternalError('CAN_NOT_SUBSCRIBE_OWN_EVENT')
+  }
+
   if (!subscription) {
     try {
       await client().subscription.create({

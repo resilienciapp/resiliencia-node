@@ -28,13 +28,13 @@ model Marker {
   created_at   DateTime       @db.Timestamp(6) @default(now())
   updated_at   DateTime       @db.Timestamp(6) @default(now()) @updatedAt
   expires_at   DateTime?      @db.Timestamp(6)
-  confirmed_at DateTime       @db.Timestamp(6) @default(now())
   name         String         @db.VarChar
   duration     Int
   latitude     Float
   longitude    Float
   description  String?        @db.VarChar
   recurrence   String         @db.VarChar
+  time_zone     String         @db.VarChar
   category_id  Int
   category     Category       @relation(fields: [category_id], references: [id])
   owners       Int[]

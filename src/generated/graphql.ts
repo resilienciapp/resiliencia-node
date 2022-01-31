@@ -27,6 +27,7 @@ export type AddMarkerInput = {
   longitude: Scalars['Float'];
   name: Scalars['String'];
   recurrence: Scalars['String'];
+  timeZone: Scalars['String'];
 };
 
 export type AddRequestInput = {
@@ -65,14 +66,8 @@ export type Marker = {
   name: Scalars['String'];
   recurrence: Scalars['String'];
   requests: Array<Request>;
-  state: MarkerState;
+  timeZone: Scalars['String'];
 };
-
-export enum MarkerState {
-  Active = 'ACTIVE',
-  Inactive = 'INACTIVE',
-  PendingConfirmation = 'PENDING_CONFIRMATION'
-}
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -146,8 +141,14 @@ export type Profile = {
 export type Query = {
   __typename?: 'Query';
   categories: Array<Category>;
+  marker: Marker;
   markers: Array<Marker>;
   user: User;
+};
+
+
+export type QueryMarkerArgs = {
+  id: Scalars['Int'];
 };
 
 export type RegisterDeviceTokenInput = {
@@ -287,7 +288,6 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Marker: ResolverTypeWrapper<MinimumIdentifiableMarker>;
-  MarkerState: MarkerState;
   Mutation: ResolverTypeWrapper<{}>;
   Platform: Platform;
   Profile: ResolverTypeWrapper<Profile>;
@@ -361,7 +361,7 @@ export type MarkerResolvers<ContextType = any, ParentType extends ResolversParen
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   recurrence?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   requests?: Resolver<Array<ResolversTypes['Request']>, ParentType, ContextType>;
-  state?: Resolver<ResolversTypes['MarkerState'], ParentType, ContextType>;
+  timeZone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -385,6 +385,7 @@ export type ProfileResolvers<ContextType = any, ParentType extends ResolversPare
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
+  marker?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<QueryMarkerArgs, 'id'>>;
   markers?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
 };

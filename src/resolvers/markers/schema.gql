@@ -1,9 +1,3 @@
-enum MarkerState {
-  ACTIVE
-  PENDING_CONFIRMATION
-  INACTIVE
-}
-
 type Marker {
   category: Category!
   description: String
@@ -15,7 +9,7 @@ type Marker {
   name: String!
   recurrence: String!
   requests: [Request!]!
-  state: MarkerState!
+  timeZone: String!
 }
 
 input AddMarkerInput {
@@ -27,6 +21,7 @@ input AddMarkerInput {
   longitude: Float!
   name: String!
   recurrence: String!
+  timeZone: String!
 }
 
 input ConfirmMarkerInput {
@@ -39,5 +34,6 @@ type Mutation {
 }
 
 type Query {
+  marker(id: Int!): Marker!
   markers: [Marker!]!
 }

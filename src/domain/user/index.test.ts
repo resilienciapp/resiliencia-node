@@ -24,13 +24,16 @@ const mockClient = client as jest.Mock
 const mockCreate = jest.fn()
 const mockDelete = jest.fn()
 const mockFindMany = jest.fn()
-const mockFindUnique = jest.fn()
+const mockFindUniqueMarker = jest.fn()
+const mockFindUniqueSubscription = jest.fn()
 
 const stubSubscribeMarkerInput = createStubSubscribeMarkerInput()
 const stubUnsubscribeMarkerInput = createStubUnsubscribeMarkerInput()
 
-const stubSubscription = createStubSubscription()
 const stubUser = createStubUser()
+const stubMarker = createStubMarker()
+const stubMarkerWithOwner = createStubMarker({ owners: [stubUser.id] })
+const stubSubscription = createStubSubscription()
 
 describe('getEvents', () => {
   beforeEach(() => {
@@ -77,13 +80,15 @@ describe('getEvents', () => {
 
 describe('getProfile', () => {
   beforeEach(() => {
-    mockClient.mockReturnValue({ user: { findUnique: mockFindUnique } })
+    mockClient.mockReturnValue({
+      user: { findUnique: mockFindUniqueSubscription },
+    })
   })
 
   afterEach(jest.clearAllMocks)
 
   it('throws an error if the user does not exist', async () => {
-    mockFindUnique.mockResolvedValue(null)
+    mockFindUniqueSubscription.mockResolvedValue(null)
 
     await expect(getProfile({ id: 1 })).rejects.toEqual(
       new UserInputError('INVALID_USER'),
@@ -91,17 +96,17 @@ describe('getProfile', () => {
   })
 
   it('uses the correct query parameters', async () => {
-    mockFindUnique.mockResolvedValue([])
+    mockFindUniqueSubscription.mockResolvedValue([])
 
     await getProfile({ id: 1 })
 
-    expect(mockFindUnique).toHaveBeenCalledWith({
+    expect(mockFindUniqueSubscription).toHaveBeenCalledWith({
       where: { id: 1 },
     })
   })
 
   it('returns the requested user profile', async () => {
-    mockFindUnique.mockResolvedValue(stubUser)
+    mockFindUniqueSubscription.mockResolvedValue(stubUser)
 
     await expect(getProfile({ id: 1 })).resolves.toEqual(
       expect.objectContaining({
@@ -176,18 +181,23 @@ describe('getSubscriptions', () => {
 describe('subscribeMarker', () => {
   beforeEach(() => {
     mockClient.mockReturnValue({
-      subscription: { create: mockCreate, findUnique: mockFindUnique },
+      marker: { findUnique: mockFindUniqueMarker },
+      subscription: {
+        create: mockCreate,
+        findUnique: mockFindUniqueSubscription,
+      },
     })
   })
 
   afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
-    mockFindUnique.mockResolvedValue(stubSubscription)
+    mockFindUniqueSubscription.mockResolvedValue(stubSubscription)
+    mockFindUniqueMarker.mockResolvedValue(stubMarker)
 
     await subscribeMarker(stubSubscribeMarkerInput, stubUser)
 
-    expect(mockFindUnique).toHaveBeenCalledWith({
+    expect(mockFindUniqueSubscription).toHaveBeenCalledWith({
       where: {
         user_id_marker_id: {
           marker_id: 1,
@@ -195,10 +205,32 @@ describe('subscribeMarker', () => {
         },
       },
     })
+    expect(mockFindUniqueMarker).toHaveBeenCalledWith({
+      where: { id: 1 },
+    })
+  })
+
+  it('throws and error if the marker does not exist', () => {
+    mockFindUniqueSubscription.mockResolvedValue(stubSubscription)
+    mockFindUniqueMarker.mockResolvedValue(null)
+
+    expect(
+      subscribeMarker(stubSubscribeMarkerInput, stubUser),
+    ).rejects.toThrowError(new InternalError('ERROR_SUBSCRIBING_MARKER'))
+  })
+
+  it('throws and error if the marker does not exist', () => {
+    mockFindUniqueSubscription.mockResolvedValue(stubSubscription)
+    mockFindUniqueMarker.mockResolvedValue(stubMarkerWithOwner)
+
+    expect(
+      subscribeMarker(stubSubscribeMarkerInput, stubUser),
+    ).rejects.toThrowError(new InternalError('CAN_NOT_SUBSCRIBE_OWN_EVENT'))
   })
 
   it('does not create the subscription if it already exists', async () => {
-    mockFindUnique.mockResolvedValue(stubSubscription)
+    mockFindUniqueSubscription.mockResolvedValue(stubSubscription)
+    mockFindUniqueMarker.mockResolvedValue(stubMarker)
 
     await subscribeMarker(stubSubscribeMarkerInput, stubUser)
 
@@ -206,7 +238,8 @@ describe('subscribeMarker', () => {
   })
 
   it('calls the create function with the correct parameters', async () => {
-    mockFindUnique.mockResolvedValue(null)
+    mockFindUniqueSubscription.mockResolvedValue(null)
+    mockFindUniqueMarker.mockResolvedValue(stubMarker)
 
     await subscribeMarker(stubSubscribeMarkerInput, stubUser)
 
@@ -219,7 +252,8 @@ describe('subscribeMarker', () => {
   })
 
   it('creates the subscription if it does not exists yet', () => {
-    mockFindUnique.mockResolvedValue(null)
+    mockFindUniqueSubscription.mockResolvedValue(null)
+    mockFindUniqueMarker.mockResolvedValue(stubMarker)
 
     expect(
       subscribeMarker(stubSubscribeMarkerInput, stubUser),
@@ -227,7 +261,8 @@ describe('subscribeMarker', () => {
   })
 
   it('throws and error if subscription fails', () => {
-    mockFindUnique.mockResolvedValue(null)
+    mockFindUniqueSubscription.mockResolvedValue(null)
+    mockFindUniqueMarker.mockResolvedValue(stubMarker)
     mockCreate.mockRejectedValue(new Error('ERROR'))
 
     expect(
@@ -239,18 +274,21 @@ describe('subscribeMarker', () => {
 describe('unsubscribeMarker', () => {
   beforeEach(() => {
     mockClient.mockReturnValue({
-      subscription: { delete: mockDelete, findUnique: mockFindUnique },
+      subscription: {
+        delete: mockDelete,
+        findUnique: mockFindUniqueSubscription,
+      },
     })
   })
 
   afterEach(jest.clearAllMocks)
 
   it('calls the find function with the correct parameters', async () => {
-    mockFindUnique.mockResolvedValue(null)
+    mockFindUniqueSubscription.mockResolvedValue(null)
 
     await unsubscribeMarker(stubUnsubscribeMarkerInput, stubUser)
 
-    expect(mockFindUnique).toHaveBeenCalledWith({
+    expect(mockFindUniqueSubscription).toHaveBeenCalledWith({
       where: {
         user_id_marker_id: {
           marker_id: 1,
@@ -261,7 +299,7 @@ describe('unsubscribeMarker', () => {
   })
 
   it('does not delete the subscription if it does not exists', async () => {
-    mockFindUnique.mockResolvedValue(null)
+    mockFindUniqueSubscription.mockResolvedValue(null)
 
     await unsubscribeMarker(stubUnsubscribeMarkerInput, stubUser)
 
@@ -269,7 +307,7 @@ describe('unsubscribeMarker', () => {
   })
 
   it('calls the create function with the correct parameters', async () => {
-    mockFindUnique.mockResolvedValue(stubSubscription)
+    mockFindUniqueSubscription.mockResolvedValue(stubSubscription)
 
     await unsubscribeMarker(stubUnsubscribeMarkerInput, stubUser)
 
@@ -284,7 +322,7 @@ describe('unsubscribeMarker', () => {
   })
 
   it('creates the subscription if it does not exists yet', () => {
-    mockFindUnique.mockResolvedValue(stubSubscription)
+    mockFindUniqueSubscription.mockResolvedValue(stubSubscription)
 
     expect(
       unsubscribeMarker(stubUnsubscribeMarkerInput, stubUser),
@@ -292,7 +330,7 @@ describe('unsubscribeMarker', () => {
   })
 
   it('throws and error if subscription fails', () => {
-    mockFindUnique.mockResolvedValue(stubSubscription)
+    mockFindUniqueSubscription.mockResolvedValue(stubSubscription)
     mockDelete.mockRejectedValue(new Error('ERROR'))
 
     expect(

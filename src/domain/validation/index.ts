@@ -1,5 +1,10 @@
 import { UserInputError } from 'apollo-server-errors'
-import { AddMarkerInput, SignInInput, SignUpInput } from 'generated/graphql'
+import {
+  AddMarkerInput,
+  AddRequestInput,
+  SignInInput,
+  SignUpInput,
+} from 'generated/graphql'
 
 import { validator } from './validator'
 
@@ -17,6 +22,10 @@ export const validateAddMarkerFields = (fields: AddMarkerInput) => {
     validator.name(fields.name),
     validator.recurrence(fields.recurrence),
   ])
+}
+
+export const validateRequestFields = (fields: AddRequestInput) => {
+  compactValidations([validator.name(fields.description)])
 }
 
 export const validateSignInFields = (fields: SignInInput) => {

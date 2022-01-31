@@ -1,5 +1,5 @@
 import { Context, isAuthenticatedUser, requireUser } from 'context'
-import { addMarker, confirmMarker, markers } from 'domain/markers'
+import { addMarker, confirmMarker, marker, markers } from 'domain/markers'
 import { requests } from 'domain/requests'
 import { validateAddMarkerFields } from 'domain/validation'
 import { Resolvers } from 'generated/graphql'
@@ -28,6 +28,7 @@ export const resolvers: Resolvers<Context> = {
     },
   },
   Query: {
+    marker,
     markers,
   },
 }

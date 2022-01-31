@@ -29,26 +29,25 @@ const seedCategories: Reduced<Category>[] = [
   {
     color: '#44B11C',
     description: 'Otro tipo de evento.',
-    name: 'Otro',
+    name: 'Otras',
   },
 ]
 
 const seedMarkers: Reduced<Marker>[] = [
   {
     category_id: 1,
-    confirmed_at: addDays(new Date(), 1),
     description: 'Vení y llevate un plato de comida caliente.',
     duration: 180,
     expires_at: null,
     latitude: -34.895365,
     longitude: -56.18769,
     name: 'Residencia Universitaria Sagrada Familia',
-    owners: [1],
-    recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+    owners: [2],
+    recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20;BYMINUTE=0',
+    time_zone: 'America/Montevideo',
   },
   {
     category_id: 2,
-    confirmed_at: addDays(new Date(), 1),
     description: 'Espacio para merendar y conversar.',
     duration: 120,
     expires_at: addDays(new Date(), 10),
@@ -56,7 +55,8 @@ const seedMarkers: Reduced<Marker>[] = [
     longitude: -56.191679,
     name: 'Plaza Cagancha',
     owners: [],
-    recurrence: 'RRULE:FREQ=DAILY;BYDAY=SA,SU;BYHOUR=17',
+    recurrence: 'RRULE:FREQ=DAILY;BYDAY=SA,SU;BYHOUR=17;BYMINUTE=0',
+    time_zone: 'America/Montevideo',
   },
 ]
 
@@ -88,7 +88,7 @@ const seedSubscriptions: Reduced<Subscription>[] = [
     user_id: 1,
   },
   {
-    marker_id: 1,
+    marker_id: 2,
     user_id: 2,
   },
 ]

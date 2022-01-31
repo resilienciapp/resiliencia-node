@@ -3,30 +3,19 @@ import {
   Marker as DatabaseMarker,
   User,
 } from '@prisma/client'
-import { subDays } from 'date-fns'
+import { UserInputError } from 'apollo-server-express'
+import { addDays } from 'date-fns'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import {
   AddMarkerInput,
   ConfirmMarkerInput,
   Marker,
-  MarkerState,
+  QueryResolvers,
 } from 'generated/graphql'
 import { OptionalExceptFor } from 'types'
 
 export type MinimumIdentifiableMarker = OptionalExceptFor<Marker, 'id'>
-
-const getMarkerState = (date: Date) => {
-  if (subDays(new Date(), 30) < date) {
-    return MarkerState.Active
-  }
-
-  if (subDays(new Date(), 60) < date) {
-    return MarkerState.PendingConfirmation
-  }
-
-  return MarkerState.Inactive
-}
 
 export const createMarker = (
   marker: DatabaseMarker & { category: DatabaseCategory },
@@ -34,8 +23,21 @@ export const createMarker = (
   ...marker,
   expiresAt: marker.expires_at,
   requests: [],
-  state: getMarkerState(marker.confirmed_at),
+  timeZone: marker.time_zone,
 })
+
+export const marker: QueryResolvers['marker'] = async (_, { id }) => {
+  const marker = await client().marker.findUnique({
+    include: { category: true },
+    where: { id },
+  })
+
+  if (!marker) {
+    throw new UserInputError('INVALID_MARKER')
+  }
+
+  return createMarker(marker)
+}
 
 export const markers = async () => {
   const markers = await client().marker.findMany({
@@ -48,6 +50,9 @@ export const markers = async () => {
   return markers.map(createMarker)
 }
 
+const extendMarkerExpiration = (date?: Date | null) =>
+  addDays(date ?? new Date(), 14)
+
 export const addMarker = async (
   fields: AddMarkerInput,
   owners: User['id'][],
@@ -58,12 +63,13 @@ export const addMarker = async (
         category_id: fields.category,
         description: fields.description,
         duration: fields.duration,
-        expires_at: fields.expiresAt,
+        expires_at: extendMarkerExpiration(fields.expiresAt),
         latitude: fields.latitude,
         longitude: fields.longitude,
         name: fields.name,
         owners,
         recurrence: fields.recurrence,
+        time_zone: fields.timeZone,
       },
     })
   } catch {
@@ -78,13 +84,13 @@ export const confirmMarker = async (fields: ConfirmMarkerInput) => {
     where: { id: fields.marker },
   })
 
-  if (!marker || (marker.expires_at && marker.expires_at < new Date())) {
+  if (!marker) {
     throw new InternalError('INVALID_MARKER')
   }
 
   try {
     await client().marker.update({
-      data: { confirmed_at: new Date() },
+      data: { expires_at: extendMarkerExpiration(marker.expires_at) },
       where: { id: fields.marker },
     })
   } catch {
