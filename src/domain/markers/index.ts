@@ -7,12 +7,8 @@ import { UserInputError } from 'apollo-server-express'
 import { addDays } from 'date-fns'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
-import {
-  AddMarkerInput,
-  ConfirmMarkerInput,
-  Marker,
-  QueryResolvers,
-} from 'generated/graphql'
+import { MinimumIdentifiableUser } from 'domain/user'
+import { AddMarkerInput, Marker, QueryResolvers } from 'generated/graphql'
 import { OptionalExceptFor } from 'types'
 
 export type MinimumIdentifiableMarker = OptionalExceptFor<Marker, 'id'>
@@ -23,6 +19,7 @@ export const createMarker = (
   ...marker,
   expiresAt: marker.expires_at,
   requests: [],
+  subscribedUsers: 0,
   timeZone: marker.time_zone,
 })
 
@@ -58,7 +55,7 @@ export const addMarker = async (
   owners: User['id'][],
 ) => {
   try {
-    await client().marker.create({
+    const newMarker = await client().marker.create({
       data: {
         category_id: fields.category,
         description: fields.description,
@@ -71,30 +68,53 @@ export const addMarker = async (
         recurrence: fields.recurrence,
         time_zone: fields.timeZone,
       },
+      include: { category: true },
     })
+
+    return createMarker(newMarker)
   } catch {
     throw new InternalError('ERROR_ADDING_MARKER')
   }
-
-  return markers()
 }
 
-export const confirmMarker = async (fields: ConfirmMarkerInput) => {
-  const marker = await client().marker.findUnique({
-    where: { id: fields.marker },
-  })
+export const confirmMarker = async (id: number) => {
+  const marker = await client().marker.findUnique({ where: { id } })
 
   if (!marker) {
-    throw new InternalError('INVALID_MARKER')
+    throw new UserInputError('INVALID_MARKER')
   }
 
   try {
-    await client().marker.update({
+    const updatedMarker = await client().marker.update({
       data: { expires_at: extendMarkerExpiration(marker.expires_at) },
-      where: { id: fields.marker },
+      include: { category: true },
+      where: { id },
     })
+
+    return createMarker(updatedMarker)
   } catch {
     throw new InternalError('ERROR_CONFIRMING_MARKER')
+  }
+}
+
+export const deleteMarker = async (
+  id: number,
+  user: MinimumIdentifiableUser,
+) => {
+  const marker = await client().marker.findUnique({ where: { id } })
+
+  if (!marker) {
+    throw new UserInputError('INVALID_MARKER')
+  }
+
+  if (!marker.owners.find(owner => owner === user.id)) {
+    throw new UserInputError('INVALID_ACTION')
+  }
+
+  try {
+    await client().marker.delete({ where: { id } })
+  } catch {
+    throw new InternalError('ERROR_DELETING_MARKER')
   }
 
   return markers()

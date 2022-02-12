@@ -62,9 +62,9 @@ model Subscription {
   created_at DateTime @db.Timestamp(6) @default(now())
   updated_at DateTime @db.Timestamp(6) @default(now()) @updatedAt
   user_id    Int
-  user       User     @relation(fields: [user_id], references: [id])
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   marker_id  Int
-  marker     Marker   @relation(fields: [marker_id], references: [id])
+  marker     Marker   @relation(fields: [marker_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@index([marker_id])
@@ -80,9 +80,9 @@ model Request {
   description  String         @db.VarChar
   notifiable   Boolean
   user_id      Int
-  user         User           @relation(fields: [user_id], references: [id])
+  user         User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
   marker_id    Int
-  marker       Marker         @relation(fields: [marker_id], references: [id])
+  marker       Marker         @relation(fields: [marker_id], references: [id], onDelete: Cascade)
   notification Notification[]
 
   @@index([user_id])
@@ -96,7 +96,7 @@ model Device {
   updated_at  DateTime        @db.Timestamp(6) @default(now()) @updatedAt
   token        String         @db.VarChar
   user_id      Int
-  user         User           @relation(fields: [user_id], references: [id])
+  user         User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
   device_id    String         @db.VarChar      @unique
   platform     Platform
   notification Notification[]
@@ -111,12 +111,12 @@ model Notification {
   created_at  DateTime         @db.Timestamp(6) @default(now())
   updated_at  DateTime         @db.Timestamp(6) @default(now()) @updatedAt
   user_id     Int
-  user        User             @relation(fields: [user_id], references: [id])
+  user        User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
   request_id  Int
-  request     Request          @relation(fields: [request_id], references: [id])
+  request     Request          @relation(fields: [request_id], references: [id], onDelete: Cascade)
   type        NotificationType
   device_id   Int
-  device      Device           @relation(fields: [device_id], references: [id])
+  device      Device           @relation(fields: [device_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@map("notifications")

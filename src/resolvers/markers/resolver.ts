@@ -1,12 +1,19 @@
 import { Context, isAuthenticatedUser, requireUser } from 'context'
-import { addMarker, confirmMarker, marker, markers } from 'domain/markers'
-import { requests } from 'domain/requests'
+import {
+  addMarker,
+  confirmMarker,
+  deleteMarker,
+  marker,
+  markers,
+} from 'domain/markers'
+import { requests, subscribedUsers } from 'domain/requests'
 import { validateAddMarkerFields } from 'domain/validation'
 import { Resolvers } from 'generated/graphql'
 
 export const resolvers: Resolvers<Context> = {
   Marker: {
     requests: marker => requests(marker),
+    subscribedUsers: marker => subscribedUsers(marker),
   },
   Mutation: {
     addMarker: async (_, { input }, context) => {
@@ -21,10 +28,15 @@ export const resolvers: Resolvers<Context> = {
 
       return addMarker(input, usersId)
     },
-    confirmMarker: async (_, { input }, context) => {
+    confirmMarker: async (_, { id }, context) => {
       await requireUser(context)
 
-      return confirmMarker(input)
+      return confirmMarker(id)
+    },
+    deleteMarker: async (_, { id }, context) => {
+      const { user } = await requireUser(context)
+
+      return deleteMarker(id, user)
     },
   },
   Query: {

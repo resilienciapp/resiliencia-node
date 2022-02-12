@@ -9,6 +9,7 @@ type Marker {
   name: String!
   recurrence: String!
   requests: [Request!]!
+  subscribedUsers: Int!
   timeZone: String!
 }
 
@@ -24,13 +25,10 @@ input AddMarkerInput {
   timeZone: String!
 }
 
-input ConfirmMarkerInput {
-  marker: Int!
-}
-
 type Mutation {
-  addMarker(input: AddMarkerInput!): [Marker!]!
-  confirmMarker(input: ConfirmMarkerInput!): [Marker!]!
+  addMarker(input: AddMarkerInput!): Marker!
+  confirmMarker(id: Int!): Marker!
+  deleteMarker(id: Int!): [Marker!]!
 }
 
 type Query {

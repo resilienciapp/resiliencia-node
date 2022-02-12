@@ -32,6 +32,9 @@ export const requests = async ({ id }: MinimumIdentifiableMarker) => {
   return requests.map(createRequest)
 }
 
+export const subscribedUsers = async ({ id }: MinimumIdentifiableMarker) =>
+  client().subscription.count({ where: { marker_id: id } })
+
 export const addRequest = async (
   fields: AddRequestInput,
   user: DatabaseUser,

@@ -1,4 +1,5 @@
 import { createStubAddMarkerInput, createStubMarker } from '__mocks__/marker'
+import { UserInputError } from 'apollo-server-express'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import MockDate from 'mockdate'
@@ -25,7 +26,7 @@ describe('addMarker', () => {
 
   beforeEach(() => {
     mockClient.mockReturnValue({
-      marker: { create: mockCreate, findMany: mockFindMany },
+      marker: { create: mockCreate },
     })
   })
 
@@ -34,7 +35,7 @@ describe('addMarker', () => {
   afterAll(MockDate.reset)
 
   it('calls the find function with the correct parameters', async () => {
-    mockFindMany.mockResolvedValue([])
+    mockCreate.mockResolvedValue(stubMarker)
 
     await addMarker(stubAddMarkerInput, [])
 
@@ -51,58 +52,14 @@ describe('addMarker', () => {
         recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
         time_zone: 'America/Montevideo',
       },
+      include: { category: true },
     })
   })
 
-  it('returns the list of markers', async () => {
-    mockFindMany.mockResolvedValue([])
+  it('returns the new marker', async () => {
+    mockCreate.mockResolvedValue(stubMarker)
 
-    await expect(addMarker(stubAddMarkerInput, [])).resolves.toEqual([])
-    expect(mockFindMany).toHaveBeenCalled()
-  })
-
-  it('throws and error if marker creation fails', () => {
-    mockCreate.mockRejectedValue(new Error('ERROR'))
-
-    expect(addMarker(stubAddMarkerInput, [])).rejects.toThrowError(
-      new InternalError('ERROR_ADDING_MARKER'),
-    )
-    expect(mockFindMany).not.toHaveBeenCalled()
-  })
-})
-
-describe('confirmMarker', () => {
-  beforeAll(() => {
-    MockDate.set(new Date('2000-09-20T00:00:00.000Z'))
-  })
-
-  beforeEach(() => {
-    mockClient.mockReturnValue({
-      marker: {
-        findMany: mockFindMany,
-        findUnique: mockFindUnique,
-        update: mockUpdate,
-      },
-    })
-    mockFindMany.mockResolvedValue([stubMarker])
-    mockFindUnique.mockResolvedValue(stubMarker)
-  })
-
-  afterEach(jest.clearAllMocks)
-
-  afterAll(MockDate.reset)
-
-  it('calls the update function with the correct parameters', async () => {
-    await confirmMarker({ marker: 1 })
-
-    expect(mockUpdate).toHaveBeenCalledWith({
-      data: { expires_at: new Date('2000-10-04T00:00:00.000Z') },
-      where: { id: 1 },
-    })
-  })
-
-  it('returns the list of markers', async () => {
-    await expect(confirmMarker({ marker: 1 })).resolves.toEqual([
+    await expect(addMarker(stubAddMarkerInput, [])).resolves.toEqual(
       expect.objectContaining({
         category: expect.objectContaining({
           description: 'Entrega de comida.',
@@ -117,27 +74,92 @@ describe('confirmMarker', () => {
         longitude: -56.18769,
         name: 'Residencia Universitaria Sagrada Familia',
         recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+        requests: [],
+        subscribedUsers: 0,
         timeZone: 'America/Montevideo',
       }),
-    ])
-    expect(mockFindMany).toHaveBeenCalled()
+    )
+  })
+
+  it('throws and error if marker creation fails', () => {
+    mockCreate.mockRejectedValue(new Error('ERROR'))
+
+    expect(addMarker(stubAddMarkerInput, [])).rejects.toThrowError(
+      new InternalError('ERROR_ADDING_MARKER'),
+    )
+  })
+})
+
+describe('confirmMarker', () => {
+  beforeAll(() => {
+    MockDate.set(new Date('2000-09-20T00:00:00.000Z'))
+  })
+
+  beforeEach(() => {
+    mockClient.mockReturnValue({
+      marker: {
+        findUnique: mockFindUnique,
+        update: mockUpdate,
+      },
+    })
+    mockFindUnique.mockResolvedValue(stubMarker)
+  })
+
+  afterEach(jest.clearAllMocks)
+
+  afterAll(MockDate.reset)
+
+  it('calls the update function with the correct parameters', async () => {
+    mockUpdate.mockResolvedValue(stubMarker)
+
+    await confirmMarker(1)
+
+    expect(mockUpdate).toHaveBeenCalledWith({
+      data: { expires_at: new Date('2000-10-04T00:00:00.000Z') },
+      include: { category: true },
+      where: { id: 1 },
+    })
+  })
+
+  it('returns the confirmed marker', async () => {
+    mockUpdate.mockResolvedValue(stubMarker)
+
+    await expect(confirmMarker(1)).resolves.toEqual(
+      expect.objectContaining({
+        category: expect.objectContaining({
+          description: 'Entrega de comida.',
+          id: 1,
+          name: 'Olla Popular',
+        }),
+        description: 'Vení y llevate un plato de comida caliente.',
+        duration: 180,
+        expiresAt: null,
+        id: 1,
+        latitude: -34.895365,
+        longitude: -56.18769,
+        name: 'Residencia Universitaria Sagrada Familia',
+        recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+        requests: [],
+        subscribedUsers: 0,
+        timeZone: 'America/Montevideo',
+      }),
+    )
   })
 
   it('throws and error if the marker does not exist', () => {
     mockFindUnique.mockResolvedValue(null)
 
-    expect(confirmMarker({ marker: 1 })).rejects.toThrowError(
-      new InternalError('INVALID_MARKER'),
+    expect(confirmMarker(1)).rejects.toThrowError(
+      new UserInputError('INVALID_MARKER'),
     )
   })
 
   it('throws and error if marker update fails', () => {
     mockUpdate.mockRejectedValue(new Error('ERROR'))
 
-    expect(confirmMarker({ marker: 1 })).rejects.toThrowError(
+    expect(confirmMarker(1)).rejects.toThrowError(
       new InternalError('ERROR_CONFIRMING_MARKER'),
     )
-    expect(mockFindMany).not.toHaveBeenCalled()
   })
 })
 
