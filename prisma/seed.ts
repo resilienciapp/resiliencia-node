@@ -101,7 +101,7 @@ const seedUsers: Reduced<User>[] = [
   },
   {
     email: 'maria.cecilia.pirotto@fing.edu.uy',
-    name: 'María Cecilia Pirotto Silvotti',
+    name: 'Cecilia Pirotto',
     password: encrypt('P4ssw*rd'),
   },
 ]
