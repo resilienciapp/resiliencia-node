@@ -8,38 +8,40 @@ generator client {
 }
 
 model User {
-  id           Int            @id              @default(autoincrement())
-  created_at   DateTime       @db.Timestamp(6) @default(now())
-  updated_at   DateTime       @db.Timestamp(6) @default(now()) @updatedAt
-  email        String         @db.VarChar      @unique
-  password     String         @db.VarChar
-  name         String         @db.VarChar
-  device       Device[]
-  notification Notification[]
-  request      Request[]
-  subscription Subscription[]
+  id                    Int                    @id              @default(autoincrement())
+  created_at            DateTime               @db.Timestamp(6) @default(now())
+  updated_at            DateTime               @db.Timestamp(6) @default(now()) @updatedAt
+  email                 String                 @db.VarChar      @unique
+  password              String                 @db.VarChar
+  name                  String                 @db.VarChar
+  device                Device[]
+  notification          Notification[]
+  request               Request[]
+  subscription          Subscription[]
+  administrator_request AdministratorRequest[]
 
   @@index([email])
   @@map("users")
 }
 
 model Marker {
-  id           Int            @id              @default(autoincrement())
-  created_at   DateTime       @db.Timestamp(6) @default(now())
-  updated_at   DateTime       @db.Timestamp(6) @default(now()) @updatedAt
-  expires_at   DateTime?      @db.Timestamp(6)
-  name         String         @db.VarChar
+  id           Int                             @id              @default(autoincrement())
+  created_at   DateTime                        @db.Timestamp(6) @default(now())
+  updated_at   DateTime                        @db.Timestamp(6) @default(now()) @updatedAt
+  expires_at   DateTime?                       @db.Timestamp(6)
+  name         String                          @db.VarChar
   duration     Int
   latitude     Float
   longitude    Float
-  description  String?        @db.VarChar
-  recurrence   String         @db.VarChar
-  time_zone     String         @db.VarChar
+  description  String?                         @db.VarChar
+  recurrence   String                          @db.VarChar
+  time_zone     String                         @db.VarChar
   category_id  Int
-  category     Category       @relation(fields: [category_id], references: [id])
+  category     Category                        @relation(fields: [category_id], references: [id])
   owners       Int[]
   request      Request[]
   subscription Subscription[]
+  administrator_request AdministratorRequest[]
 
   @@index([category_id])
   @@map("markers")
@@ -122,6 +124,22 @@ model Notification {
   @@map("notifications")
 }
 
+model AdministratorRequest {
+  id         Int           @id              @default(autoincrement())
+  created_at DateTime      @db.Timestamp(6) @default(now())
+  updated_at DateTime      @db.Timestamp(6) @default(now()) @updatedAt
+  user_id    Int
+  user       User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  marker_id  Int
+  marker     Marker        @relation(fields: [marker_id], references: [id], onDelete: Cascade)
+  status     RequestStatus
+
+  @@index([user_id])
+  @@index([marker_id])
+  @@unique([user_id, marker_id])
+  @@map("administrator_requests")
+}
+
 enum Platform {
   android
   ios
@@ -132,4 +150,12 @@ enum Platform {
 enum NotificationType {
   email
   push_notification
+}
+
+enum RequestStatus {
+  accepted
+  pending
+  rejected
+
+  @@map("request_status")
 }

@@ -6,12 +6,21 @@ import { format } from 'util'
 import { Device, User as DatabaseUser } from '.prisma/client'
 
 export enum Notification {
+  EVENT_ADMINISTRATION_REQUEST = 'EVENT_ADMINISTRATION_REQUEST',
+  EVENT_ADMINISTRATION_RESPONSE = 'EVENT_ADMINISTRATION_RESPONSE',
   MARKER_REQUEST = 'MARKER_REQUEST',
 }
 
 type Payload = {
+  [Notification.EVENT_ADMINISTRATION_REQUEST]: {
+    markerId: string
+    markerName: string
+  }
+  [Notification.EVENT_ADMINISTRATION_RESPONSE]: {
+    markerId: string
+    markerName: string
+  }
   [Notification.MARKER_REQUEST]: {
-    description: string
     markerId: string
     markerName: string
     requestId: string

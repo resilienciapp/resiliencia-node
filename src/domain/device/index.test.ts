@@ -4,7 +4,7 @@ import {
   createStubUnregisterDeviceTokenInput,
 } from '__mocks__/device'
 import { createStubUser } from '__mocks__/user'
-import { UserInputError } from 'apollo-server-express'
+import { UserInputError } from 'apollo-server-errors'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import { Platform } from 'generated/graphql'
@@ -44,10 +44,7 @@ describe('registerDeviceToken', () => {
     await registerDeviceToken(stubRegisterDeviceTokenInput, stubUser)
 
     expect(mockFindFirst).toHaveBeenCalledWith({
-      where: {
-        device_id: 'd5a31b6d-ab97-4a71-9fcc-9541f1df068f',
-        user_id: 1,
-      },
+      where: { device_id: 'd5a31b6d-ab97-4a71-9fcc-9541f1df068f' },
     })
   })
 
@@ -61,6 +58,7 @@ describe('registerDeviceToken', () => {
         platform: Platform.Android,
         token:
           'fsIh9iDITUqJiAlL_qfnU5:APA91bFdopRyp6PIGjqtu8dySDb6ClDYMbhnOSVmo-Fv7eSlkiBlPOqFD56gMugmMJzJG6Sq0GPXZa0Sk45UWjHCMuXTJXUzbm-NoTXV9D0cS58qrdbgWYFZ2RNyNhiy5XPG58Mk3Ezo',
+        user_id: 1,
       },
       where: {
         device_id: 'd5a31b6d-ab97-4a71-9fcc-9541f1df068f',

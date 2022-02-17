@@ -1,6 +1,6 @@
 import { createStubAddMarkerInput } from '__mocks__/marker'
 import { createStubSignInInput, createStubSignUpInput } from '__mocks__/user'
-import { UserInputError } from 'apollo-server-express'
+import { UserInputError } from 'apollo-server-errors'
 import MockDate from 'mockdate'
 
 import {

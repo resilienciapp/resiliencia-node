@@ -20,17 +20,10 @@ type User {
   subscriptions: [Subscription!]!
 }
 
-input SubscribeMarkerInput {
-  marker: Int!
-}
-
-input UnsubscribeMarkerInput {
-  marker: Int!
-}
-
 type Mutation {
-  subscribeMarker(input: SubscribeMarkerInput!): User!
-  unsubscribeMarker(input: UnsubscribeMarkerInput!): User!
+  requestMarkerAdministration(id: Int!): User!
+  subscribeMarker(id: Int!): User!
+  unsubscribeMarker(id: Int!): User!
 }
 
 type Query {

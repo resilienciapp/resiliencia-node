@@ -102,8 +102,6 @@ describe('addRequest', () => {
       users,
       Notification.MARKER_REQUEST,
       {
-        description:
-          'Necesitamos cualquier verdura para cocinar. Recibimos hasta las 19 horas.',
         markerId: '1',
         markerName: 'Residencia Universitaria Sagrada Familia',
         requestId: '1',

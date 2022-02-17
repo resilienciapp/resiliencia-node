@@ -1,5 +1,5 @@
 import { createStubAddMarkerInput, createStubMarker } from '__mocks__/marker'
-import { UserInputError } from 'apollo-server-express'
+import { UserInputError } from 'apollo-server-errors'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import MockDate from 'mockdate'

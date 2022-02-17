@@ -3,7 +3,7 @@ import {
   createStubSignUpInput,
   createStubUser,
 } from '__mocks__/user'
-import { UserInputError } from 'apollo-server-express'
+import { UserInputError } from 'apollo-server-errors'
 import { client } from 'db'
 import { compare, encrypt } from 'domain/crypto'
 import { InternalError } from 'domain/errors'

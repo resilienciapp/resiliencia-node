@@ -3,6 +3,7 @@ import {
   getEvents,
   getProfile,
   getSubscriptions,
+  requestMarkerAdministration,
   subscribeMarker,
   unsubscribeMarker,
 } from 'domain/user'
@@ -10,15 +11,20 @@ import { Resolvers } from 'generated/graphql'
 
 export const resolvers: Resolvers<Context> = {
   Mutation: {
-    subscribeMarker: async (_, { input }, context) => {
+    requestMarkerAdministration: async (_, { id }, context) => {
       const { user } = await requireUser(context)
 
-      return subscribeMarker(input, user)
+      return requestMarkerAdministration(id, user)
     },
-    unsubscribeMarker: async (_, { input }, context) => {
+    subscribeMarker: async (_, { id }, context) => {
       const { user } = await requireUser(context)
 
-      return unsubscribeMarker(input, user)
+      return subscribeMarker(id, user)
+    },
+    unsubscribeMarker: async (_, { id }, context) => {
+      const { user } = await requireUser(context)
+
+      return unsubscribeMarker(id, user)
     },
   },
   Query: {

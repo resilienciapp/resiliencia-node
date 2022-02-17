@@ -37,6 +37,14 @@ export type AddRequestInput = {
   notifiable: Scalars['Boolean'];
 };
 
+export type AdminRequest = {
+  __typename?: 'AdminRequest';
+  createdAt: Scalars['Date'];
+  id: Scalars['Int'];
+  status: RequestStatus;
+  userName: Scalars['String'];
+};
+
 export type Category = {
   __typename?: 'Category';
   color: Scalars['String'];
@@ -52,6 +60,7 @@ export type Event = {
 
 export type Marker = {
   __typename?: 'Marker';
+  adminRequests: Array<AdminRequest>;
   category: Category;
   description?: Maybe<Scalars['String']>;
   duration: Scalars['Int'];
@@ -73,6 +82,8 @@ export type Mutation = {
   confirmMarker: Marker;
   deleteMarker: Array<Marker>;
   registerDeviceToken: User;
+  requestMarkerAdministration: User;
+  respondMarkerRequest: Marker;
   signIn: Session;
   signUp: Session;
   subscribeMarker: User;
@@ -106,6 +117,16 @@ export type MutationRegisterDeviceTokenArgs = {
 };
 
 
+export type MutationRequestMarkerAdministrationArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type MutationRespondMarkerRequestArgs = {
+  input: RespondMarkerRequestInput;
+};
+
+
 export type MutationSignInArgs = {
   input: SignInInput;
 };
@@ -117,7 +138,7 @@ export type MutationSignUpArgs = {
 
 
 export type MutationSubscribeMarkerArgs = {
-  input: SubscribeMarkerInput;
+  id: Scalars['Int'];
 };
 
 
@@ -127,7 +148,7 @@ export type MutationUnregisterDeviceTokenArgs = {
 
 
 export type MutationUnsubscribeMarkerArgs = {
-  input: UnsubscribeMarkerInput;
+  id: Scalars['Int'];
 };
 
 export enum Platform {
@@ -169,6 +190,17 @@ export type Request = {
   user: Profile;
 };
 
+export enum RequestStatus {
+  Accepted = 'accepted',
+  Pending = 'pending',
+  Rejected = 'rejected'
+}
+
+export type RespondMarkerRequestInput = {
+  requestId: Scalars['Int'];
+  response: RequestStatus;
+};
+
 export type Session = {
   __typename?: 'Session';
   jwt: Scalars['String'];
@@ -185,10 +217,6 @@ export type SignUpInput = {
   password: Scalars['String'];
 };
 
-export type SubscribeMarkerInput = {
-  marker: Scalars['Int'];
-};
-
 export type Subscription = {
   __typename?: 'Subscription';
   date: Scalars['Date'];
@@ -198,10 +226,6 @@ export type Subscription = {
 
 export type UnregisterDeviceTokenInput = {
   deviceId: Scalars['String'];
-};
-
-export type UnsubscribeMarkerInput = {
-  marker: Scalars['Int'];
 };
 
 export type User = {
@@ -283,6 +307,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AddMarkerInput: AddMarkerInput;
   AddRequestInput: AddRequestInput;
+  AdminRequest: ResolverTypeWrapper<AdminRequest>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Category: ResolverTypeWrapper<Category>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
@@ -296,14 +321,14 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   RegisterDeviceTokenInput: RegisterDeviceTokenInput;
   Request: ResolverTypeWrapper<Request>;
+  RequestStatus: RequestStatus;
+  RespondMarkerRequestInput: RespondMarkerRequestInput;
   Session: ResolverTypeWrapper<Session>;
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
   String: ResolverTypeWrapper<Scalars['String']>;
-  SubscribeMarkerInput: SubscribeMarkerInput;
   Subscription: ResolverTypeWrapper<{}>;
   UnregisterDeviceTokenInput: UnregisterDeviceTokenInput;
-  UnsubscribeMarkerInput: UnsubscribeMarkerInput;
   User: ResolverTypeWrapper<MinimumIdentifiableUser>;
 };
 
@@ -311,6 +336,7 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AddMarkerInput: AddMarkerInput;
   AddRequestInput: AddRequestInput;
+  AdminRequest: AdminRequest;
   Boolean: Scalars['Boolean'];
   Category: Category;
   Date: Scalars['Date'];
@@ -323,15 +349,22 @@ export type ResolversParentTypes = {
   Query: {};
   RegisterDeviceTokenInput: RegisterDeviceTokenInput;
   Request: Request;
+  RespondMarkerRequestInput: RespondMarkerRequestInput;
   Session: Session;
   SignInInput: SignInInput;
   SignUpInput: SignUpInput;
   String: Scalars['String'];
-  SubscribeMarkerInput: SubscribeMarkerInput;
   Subscription: {};
   UnregisterDeviceTokenInput: UnregisterDeviceTokenInput;
-  UnsubscribeMarkerInput: UnsubscribeMarkerInput;
   User: MinimumIdentifiableUser;
+};
+
+export type AdminRequestResolvers<ContextType = any, ParentType extends ResolversParentTypes['AdminRequest'] = ResolversParentTypes['AdminRequest']> = {
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CategoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
@@ -352,6 +385,7 @@ export type EventResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type MarkerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Marker'] = ResolversParentTypes['Marker']> = {
+  adminRequests?: Resolver<Array<ResolversTypes['AdminRequest']>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['Category'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -373,11 +407,13 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   confirmMarker?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationConfirmMarkerArgs, 'id'>>;
   deleteMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationDeleteMarkerArgs, 'id'>>;
   registerDeviceToken?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRegisterDeviceTokenArgs, 'input'>>;
+  requestMarkerAdministration?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRequestMarkerAdministrationArgs, 'id'>>;
+  respondMarkerRequest?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationRespondMarkerRequestArgs, 'input'>>;
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
   signUp?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'input'>>;
-  subscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSubscribeMarkerArgs, 'input'>>;
+  subscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSubscribeMarkerArgs, 'id'>>;
   unregisterDeviceToken?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUnregisterDeviceTokenArgs, 'input'>>;
-  unsubscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUnsubscribeMarkerArgs, 'input'>>;
+  unsubscribeMarker?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUnsubscribeMarkerArgs, 'id'>>;
 };
 
 export type ProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['Profile'] = ResolversParentTypes['Profile']> = {
@@ -422,6 +458,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type Resolvers<ContextType = any> = {
+  AdminRequest?: AdminRequestResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Event?: EventResolvers<ContextType>;

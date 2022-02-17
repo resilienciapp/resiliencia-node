@@ -1,4 +1,18 @@
+enum RequestStatus {
+  accepted
+  pending
+  rejected
+}
+
+type AdminRequest {
+  createdAt: Date!
+  id: Int!
+  status: RequestStatus!
+  userName: String!
+}
+
 type Marker {
+  adminRequests: [AdminRequest!]!
   category: Category!
   description: String
   duration: Int!
@@ -25,10 +39,16 @@ input AddMarkerInput {
   timeZone: String!
 }
 
+input RespondMarkerRequestInput {
+  requestId: Int!
+  response: RequestStatus!
+}
+
 type Mutation {
   addMarker(input: AddMarkerInput!): Marker!
   confirmMarker(id: Int!): Marker!
   deleteMarker(id: Int!): [Marker!]!
+  respondMarkerRequest(input: RespondMarkerRequestInput!): Marker!
 }
 
 type Query {

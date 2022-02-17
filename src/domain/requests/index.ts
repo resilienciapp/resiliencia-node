@@ -79,7 +79,6 @@ export const addRequest = async (
       await Promise.all([
         client().$transaction(transactions),
         sendNotifications(users, Notification.MARKER_REQUEST, {
-          description: request.description,
           markerId: request.marker_id.toString(),
           markerName: request.marker.name,
           requestId: request.id.toString(),

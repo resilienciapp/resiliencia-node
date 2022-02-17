@@ -12,7 +12,7 @@ export const registerDeviceToken = async (
   user: User,
 ) => {
   const device = await client().device.findFirst({
-    where: { device_id: input.deviceId, user_id: user.id },
+    where: { device_id: input.deviceId },
   })
 
   try {
@@ -21,6 +21,7 @@ export const registerDeviceToken = async (
         data: {
           platform: input.platform,
           token: input.token,
+          user_id: user.id,
         },
         where: {
           device_id: input.deviceId,
