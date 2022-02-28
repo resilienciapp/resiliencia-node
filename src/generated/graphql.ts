@@ -45,6 +45,12 @@ export type AdminRequest = {
   userName: Scalars['String'];
 };
 
+export type AppVersion = {
+  __typename?: 'AppVersion';
+  android: Scalars['String'];
+  ios: Scalars['String'];
+};
+
 export type Category = {
   __typename?: 'Category';
   color: Scalars['String'];
@@ -82,6 +88,7 @@ export type Mutation = {
   confirmMarker: Marker;
   deleteMarker: Array<Marker>;
   registerDeviceToken: User;
+  reportMarker: Array<Marker>;
   requestMarkerAdministration: User;
   respondMarkerRequest: Marker;
   signIn: Session;
@@ -114,6 +121,11 @@ export type MutationDeleteMarkerArgs = {
 
 export type MutationRegisterDeviceTokenArgs = {
   input: RegisterDeviceTokenInput;
+};
+
+
+export type MutationReportMarkerArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -164,6 +176,7 @@ export type Profile = {
 
 export type Query = {
   __typename?: 'Query';
+  appVersion: AppVersion;
   categories: Array<Category>;
   marker: Marker;
   markers: Array<Marker>;
@@ -308,6 +321,7 @@ export type ResolversTypes = {
   AddMarkerInput: AddMarkerInput;
   AddRequestInput: AddRequestInput;
   AdminRequest: ResolverTypeWrapper<AdminRequest>;
+  AppVersion: ResolverTypeWrapper<AppVersion>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Category: ResolverTypeWrapper<Category>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
@@ -337,6 +351,7 @@ export type ResolversParentTypes = {
   AddMarkerInput: AddMarkerInput;
   AddRequestInput: AddRequestInput;
   AdminRequest: AdminRequest;
+  AppVersion: AppVersion;
   Boolean: Scalars['Boolean'];
   Category: Category;
   Date: Scalars['Date'];
@@ -364,6 +379,12 @@ export type AdminRequestResolvers<ContextType = any, ParentType extends Resolver
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['RequestStatus'], ParentType, ContextType>;
   userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AppVersionResolvers<ContextType = any, ParentType extends ResolversParentTypes['AppVersion'] = ResolversParentTypes['AppVersion']> = {
+  android?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ios?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -407,6 +428,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   confirmMarker?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationConfirmMarkerArgs, 'id'>>;
   deleteMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationDeleteMarkerArgs, 'id'>>;
   registerDeviceToken?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRegisterDeviceTokenArgs, 'input'>>;
+  reportMarker?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType, RequireFields<MutationReportMarkerArgs, 'id'>>;
   requestMarkerAdministration?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRequestMarkerAdministrationArgs, 'id'>>;
   respondMarkerRequest?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationRespondMarkerRequestArgs, 'input'>>;
   signIn?: Resolver<ResolversTypes['Session'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'input'>>;
@@ -423,6 +445,7 @@ export type ProfileResolvers<ContextType = any, ParentType extends ResolversPare
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  appVersion?: Resolver<ResolversTypes['AppVersion'], ParentType, ContextType>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   marker?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<QueryMarkerArgs, 'id'>>;
   markers?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType>;
@@ -459,6 +482,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type Resolvers<ContextType = any> = {
   AdminRequest?: AdminRequestResolvers<ContextType>;
+  AppVersion?: AppVersionResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Event?: EventResolvers<ContextType>;

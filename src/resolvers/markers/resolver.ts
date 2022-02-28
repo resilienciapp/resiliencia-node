@@ -6,6 +6,7 @@ import {
   deleteMarker,
   marker,
   markers,
+  reportMarker,
   respondMarkerRequest,
 } from 'domain/markers'
 import { requests, subscribedUsers } from 'domain/requests'
@@ -15,9 +16,12 @@ import { Resolvers } from 'generated/graphql'
 export const resolvers: Resolvers<Context> = {
   Marker: {
     adminRequests: async (marker, _, context) => {
-      await requireUser(context)
-
-      return adminRequests(marker)
+      try {
+        const { user } = await requireUser(context)
+        return adminRequests(marker, user)
+      } catch {
+        return []
+      }
     },
     requests: marker => requests(marker),
     subscribedUsers: marker => subscribedUsers(marker),
@@ -42,6 +46,11 @@ export const resolvers: Resolvers<Context> = {
       const { user } = await requireUser(context)
 
       return deleteMarker(id, user)
+    },
+    reportMarker: async (_, { id }, context) => {
+      const { user } = await requireUser(context)
+
+      return reportMarker(id, user)
     },
     respondMarkerRequest: async (_, { input }, context) => {
       const { user } = await requireUser(context)

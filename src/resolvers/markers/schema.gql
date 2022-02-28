@@ -48,6 +48,7 @@ type Mutation {
   addMarker(input: AddMarkerInput!): Marker!
   confirmMarker(id: Int!): Marker!
   deleteMarker(id: Int!): [Marker!]!
+  reportMarker(id: Int!): [Marker!]!
   respondMarkerRequest(input: RespondMarkerRequestInput!): Marker!
 }
 

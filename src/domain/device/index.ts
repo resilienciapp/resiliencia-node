@@ -7,6 +7,14 @@ import {
   UnregisterDeviceTokenInput,
 } from 'generated/graphql'
 
+const ANDROID = process.env.APP_VERSION_ANDROID
+const IOS = process.env.APP_VERSION_IOS
+
+export const appVersion = () => ({
+  android: ANDROID,
+  ios: IOS,
+})
+
 export const registerDeviceToken = async (
   input: RegisterDeviceTokenInput,
   user: User,

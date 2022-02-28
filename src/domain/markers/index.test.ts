@@ -44,7 +44,7 @@ describe('addMarker', () => {
         category_id: 1,
         description: 'Vení y llevate un plato de comida caliente.',
         duration: 180,
-        expires_at: new Date('2000-10-04T00:00:00.000Z'),
+        expires_at: new Date('2000-09-27T00:00:00.000Z'),
         latitude: -34.895365,
         longitude: -56.18769,
         name: 'Residencia Universitaria Sagrada Familia',
@@ -115,7 +115,7 @@ describe('confirmMarker', () => {
     await confirmMarker(1)
 
     expect(mockUpdate).toHaveBeenCalledWith({
-      data: { expires_at: new Date('2000-10-04T00:00:00.000Z') },
+      data: { expires_at: new Date('2000-09-27T00:00:00.000Z') },
       include: { category: true },
       where: { id: 1 },
     })

@@ -1,5 +1,9 @@
 import { Context, requireUser } from 'context'
-import { registerDeviceToken, unregisterDeviceToken } from 'domain/device'
+import {
+  appVersion,
+  registerDeviceToken,
+  unregisterDeviceToken,
+} from 'domain/device'
 import { Resolvers } from 'generated/graphql'
 
 export const resolvers: Resolvers<Context> = {
@@ -14,5 +18,8 @@ export const resolvers: Resolvers<Context> = {
 
       return unregisterDeviceToken(input, user)
     },
+  },
+  Query: {
+    appVersion,
   },
 }

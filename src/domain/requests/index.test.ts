@@ -24,7 +24,7 @@ const mockTransaction = jest.fn()
 const stubAddRequestInput = createStubAddRequestInput()
 
 const stubDevice = createStubDevice()
-const stubMarker = createStubMarker()
+const stubMarker = createStubMarker({ owners: [1] })
 const stubRequest = createStubRequest()
 const stubUser = createStubUser()
 const stubUserWithDevice = createStubUser({ device: [stubDevice] })

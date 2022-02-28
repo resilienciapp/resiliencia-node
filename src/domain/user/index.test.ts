@@ -46,6 +46,7 @@ describe('getEvents', () => {
 
     expect(mockFindMany).toHaveBeenCalledWith({
       include: { category: true },
+      orderBy: { created_at: 'asc' },
       where: { owners: { has: 1 } },
     })
   })
@@ -128,6 +129,7 @@ describe('getSubscriptions', () => {
 
     expect(mockFindMany).toHaveBeenCalledWith({
       include: { category: true, subscription: true },
+      orderBy: { created_at: 'asc' },
       where: { subscription: { some: { user_id: 1 } } },
     })
   })
@@ -137,9 +139,35 @@ describe('getSubscriptions', () => {
       createStubMarker({
         subscription: [stubSubscription],
       }),
+      createStubMarker({
+        subscription: [
+          createStubSubscription({
+            created_at: new Date('2000-05-20T00:00:00.000Z'),
+          }),
+        ],
+      }),
     ])
 
     expect(getSubscriptions(stubUser)).resolves.toEqual([
+      expect.objectContaining({
+        date: new Date('2000-05-20T00:00:00.000Z'),
+        id: 1,
+        marker: expect.objectContaining({
+          category: expect.objectContaining({
+            description: 'Entrega de comida.',
+            id: 1,
+            name: 'Olla Popular',
+          }),
+          description: 'Vení y llevate un plato de comida caliente.',
+          duration: 180,
+          expiresAt: null,
+          id: 1,
+          latitude: -34.895365,
+          longitude: -56.18769,
+          name: 'Residencia Universitaria Sagrada Familia',
+          recurrence: 'RRULE:FREQ=DAILY;BYHOUR=20',
+        }),
+      }),
       expect.objectContaining({
         date: new Date('2000-05-25T00:00:00.000Z'),
         id: 1,

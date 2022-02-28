@@ -2,6 +2,8 @@ import { chain } from 'lodash'
 import { format } from 'util'
 
 const environmentVariables = {
+  APP_VERSION_ANDROID: process.env.APP_VERSION_ANDROID,
+  APP_VERSION_IOS: process.env.APP_VERSION_IOS,
   DATABASE_URL: process.env.DATABASE_URL,
   FIREBASE_AUTH_KEY: process.env.FIREBASE_AUTH_KEY,
   FIREBASE_DATABASE_URL: process.env.FIREBASE_DATABASE_URL,
@@ -13,6 +15,7 @@ const environmentVariables = {
   LOGDNA_INGESTION_KEY: process.env.LOGDNA_INGESTION_KEY,
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT,
+  REDIS_URL: process.env.REDIS_URL,
 }
 
 export const validateEnvironment = () => {

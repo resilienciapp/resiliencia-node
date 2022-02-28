@@ -5,6 +5,7 @@ import { logInfo } from 'domain/logger'
 import { initializeFirebase } from 'domain/notification'
 import express from 'express'
 import { createServer } from 'http'
+import { installLocalStorage } from 'localStorage'
 import { plugins } from 'plugins'
 import { resolvers, typeDefs } from 'resolvers'
 import { format } from 'util'
@@ -32,6 +33,7 @@ const boot = async () => {
 
   const server = createServer(app)
 
+  installLocalStorage()
   initializeFirebase()
 
   server.listen({ port: process.env.PORT }, () => {

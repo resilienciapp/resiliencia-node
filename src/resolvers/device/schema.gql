@@ -1,3 +1,8 @@
+type AppVersion {
+  android: String!
+  ios: String!
+}
+
 enum Platform {
   android
   ios
@@ -16,4 +21,8 @@ input UnregisterDeviceTokenInput {
 type Mutation {
   registerDeviceToken(input: RegisterDeviceTokenInput!): User!
   unregisterDeviceToken(input: UnregisterDeviceTokenInput!): User!
+}
+
+type Query {
+  appVersion: AppVersion!
 }

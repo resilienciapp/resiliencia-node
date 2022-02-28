@@ -1,6 +1,7 @@
 import {
   Category as DatabaseCategory,
   Marker as DatabaseMarker,
+  PrismaPromise,
   User,
 } from '@prisma/client'
 import { UserInputError } from 'apollo-server-errors'
@@ -16,6 +17,7 @@ import {
   RequestStatus,
   RespondMarkerRequestInput,
 } from 'generated/graphql'
+import { CacheKeyPrefix, del, delKey, get, keys, set } from 'localStorage'
 import { OptionalExceptFor } from 'types'
 
 export type MinimumIdentifiableMarker = OptionalExceptFor<Marker, 'id'>
@@ -56,9 +58,24 @@ export const markers = async () => {
 }
 
 const extendMarkerExpiration = (date?: Date | null) =>
-  addDays(date ?? new Date(), 14)
+  addDays(date ?? new Date(), 7)
 
-export const adminRequests = async ({ id }: MinimumIdentifiableMarker) => {
+export const adminRequests = async (
+  { id }: MinimumIdentifiableMarker,
+  user: MinimumIdentifiableUser,
+) => {
+  const marker = await client().marker.findUnique({
+    where: { id },
+  })
+
+  if (!marker) {
+    throw new UserInputError('INVALID_MARKER')
+  }
+
+  if (!marker.owners.find(owner => owner === user.id)) {
+    return []
+  }
+
   const requests = await client().administratorRequest.findMany({
     include: { user: true },
     where: { marker_id: id },
@@ -142,6 +159,59 @@ export const deleteMarker = async (
   return markers()
 }
 
+const MAXIMUM_REPORTS_NUMBER = 4
+const SECONDS = 259200
+
+export const reportMarker = async (
+  id: number,
+  user: MinimumIdentifiableUser,
+) => {
+  const [marker, reports, alreadyReported] = await Promise.all([
+    client().marker.findUnique({ include: { category: true }, where: { id } }),
+    get(CacheKeyPrefix.MARKER_REPORTS_AMOUNT, id),
+    get(CacheKeyPrefix.USER_REPORT, id + ':' + user.id),
+  ])
+
+  const amountOfReports = Number(reports) + 1
+
+  if (!marker) {
+    throw new UserInputError('INVALID_MARKER')
+  }
+
+  if (marker.expires_at && marker.expires_at < new Date()) {
+    throw new UserInputError('MARKER_ALREADY_EXPIRED')
+  }
+
+  if (alreadyReported) {
+    throw new UserInputError('USER_ALREADY_REPORTED_MARKER')
+  }
+
+  if (MAXIMUM_REPORTS_NUMBER < amountOfReports) {
+    try {
+      await client().marker.update({
+        data: { expires_at: new Date() },
+        where: { id },
+      })
+
+      const userKeys = await keys(CacheKeyPrefix.USER_REPORT + id)
+
+      await Promise.all([
+        ...userKeys.map(key => delKey(key)),
+        del(CacheKeyPrefix.MARKER_REPORTS_AMOUNT, id),
+      ])
+    } catch {
+      throw new InternalError('ERROR_EXPIRING_MARKER')
+    }
+  } else {
+    await Promise.all([
+      set(CacheKeyPrefix.MARKER_REPORTS_AMOUNT, id, amountOfReports, SECONDS),
+      set(CacheKeyPrefix.USER_REPORT, id + ':' + user.id, 1, SECONDS),
+    ])
+  }
+
+  return markers()
+}
+
 export const respondMarkerRequest = async (
   input: RespondMarkerRequestInput,
   user: MinimumIdentifiableUser,
@@ -152,13 +222,6 @@ export const respondMarkerRequest = async (
 
   if (!request) {
     throw new UserInputError('INVALID_REQUEST')
-  }
-
-  if (
-    request.status !== RequestStatus.Pending ||
-    input.response === RequestStatus.Pending
-  ) {
-    throw new UserInputError('INVALID_REQUEST_STATE')
   }
 
   const marker = await client().marker.findUnique({
@@ -173,6 +236,13 @@ export const respondMarkerRequest = async (
     throw new UserInputError('USER_NOT_ALLOWED_TO_PERFORM_OPERATION')
   }
 
+  if (
+    request.status !== RequestStatus.Pending ||
+    input.response === RequestStatus.Pending
+  ) {
+    throw new UserInputError('INVALID_REQUEST_STATE')
+  }
+
   const userToNotify = await client().user.findUnique({
     include: { device: true },
     where: { id: request.user_id },
@@ -182,11 +252,38 @@ export const respondMarkerRequest = async (
     throw new InternalError('INVALID_USER')
   }
 
+  const isSubscribed = await client().subscription.findUnique({
+    where: {
+      user_id_marker_id: {
+        marker_id: request.marker_id,
+        user_id: request.user_id,
+      },
+    },
+  })
+
   try {
-    await client().administratorRequest.update({
-      data: { status: input.response },
-      where: { id: input.requestId },
-    })
+    const transaction: PrismaPromise<unknown>[] = [
+      client().administratorRequest.update({
+        data: { status: input.response },
+        where: { id: input.requestId },
+      }),
+    ]
+
+    if (isSubscribed) {
+      transaction.push(
+        client().subscription.delete({
+          where: {
+            user_id_marker_id: {
+              marker_id: request.marker_id,
+              user_id: request.user_id,
+            },
+          },
+        }),
+      )
+    }
+
+    await client().$transaction(transaction)
+
     await sendNotifications(
       [userToNotify],
       Notification.EVENT_ADMINISTRATION_RESPONSE,

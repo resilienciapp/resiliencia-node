@@ -1,3 +1,4 @@
+import { UserInputError } from 'apollo-server-errors'
 import { client } from 'db'
 import { InternalError } from 'domain/errors'
 import { createMarker, MinimumIdentifiableMarker } from 'domain/markers'
@@ -39,6 +40,18 @@ export const addRequest = async (
   fields: AddRequestInput,
   user: DatabaseUser,
 ) => {
+  const marker = await client().marker.findUnique({
+    where: { id: fields.marker },
+  })
+
+  if (!marker) {
+    throw new UserInputError('INVALID_MARKER')
+  }
+
+  if (!marker.owners.find(owner => owner === user.id)) {
+    throw new UserInputError('USER_NOT_ALLOWED_TO_PERFORM_OPERATION')
+  }
+
   try {
     const request = await client().request.create({
       data: {

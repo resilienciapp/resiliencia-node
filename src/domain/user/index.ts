@@ -1,6 +1,7 @@
 import {
   Category,
   Marker,
+  PrismaPromise,
   RequestStatus,
   Subscription as DatabaseSubscription,
   User as DatabaseUser,
@@ -61,6 +62,7 @@ const createEvent = (marker: Marker & { category: Category }) => ({
 export const getEvents = async ({ id }: MinimumIdentifiableUser) => {
   const markers = await client().marker.findMany({
     include: { category: true },
+    orderBy: { created_at: 'asc' },
     where: { owners: { has: id } },
   })
 
@@ -70,10 +72,13 @@ export const getEvents = async ({ id }: MinimumIdentifiableUser) => {
 export const getSubscriptions = async ({ id }: MinimumIdentifiableUser) => {
   const markers = await client().marker.findMany({
     include: { category: true, subscription: true },
+    orderBy: { created_at: 'asc' },
     where: { subscription: { some: { user_id: id } } },
   })
 
-  return markers.map(_ => createSubscription(_, id))
+  return markers
+    .map(_ => createSubscription(_, id))
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
 }
 
 export const requestMarkerAdministration = async (
@@ -102,7 +107,16 @@ export const requestMarkerAdministration = async (
 
   if (marker.owners.length === 0) {
     try {
-      await client().$transaction([
+      const isSubscribed = await client().subscription.findUnique({
+        where: {
+          user_id_marker_id: {
+            marker_id: markerId,
+            user_id: user.id,
+          },
+        },
+      })
+
+      const transaction: PrismaPromise<unknown>[] = [
         client().administratorRequest.create({
           data: {
             marker_id: markerId,
@@ -114,7 +128,22 @@ export const requestMarkerAdministration = async (
           data: { owners: [user.id] },
           where: { id: markerId },
         }),
-      ])
+      ]
+
+      if (isSubscribed) {
+        transaction.push(
+          client().subscription.delete({
+            where: {
+              user_id_marker_id: {
+                marker_id: markerId,
+                user_id: user.id,
+              },
+            },
+          }),
+        )
+      }
+
+      await client().$transaction(transaction)
     } catch {
       throw new InternalError('ERROR_REQUESTING_MARKER_ADMINISTRATION')
     }

@@ -1,5 +1,7 @@
 declare namespace NodeJS {
   type EnvVar =
+    | 'APP_VERSION_ANDROID'
+    | 'APP_VERSION_IOS'
     | 'DATABASE_URL'
     | 'FIREBASE_AUTH_KEY'
     | 'FIREBASE_DATABASE_URL'
@@ -11,6 +13,7 @@ declare namespace NodeJS {
     | 'LOGDNA_INGESTION_KEY'
     | 'NODE_ENV'
     | 'PORT'
+    | 'REDIS_URL'
 
   export interface ProcessEnv extends Record<EnvVar, string> {
     TZ: 'UTC'
