@@ -18,6 +18,8 @@
     "test": "TZ=UTC jest"
   },
   "dependencies": {
+    "@firebase/app-compat": "^0.1.18",
+    "@firebase/app-types": "^0.7.0",
     "@graphql-tools/load-files": "^6.4.0",
     "@graphql-tools/merge": "^8.1.2",
     "@graphql-tools/schema": "^8.2.0",
