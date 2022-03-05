@@ -267,11 +267,16 @@ export const respondMarkerRequest = async (
         data: { status: input.response },
         where: { id: input.requestId },
       }),
-      client().marker.update({
-        data: { owners: { push: [request.user_id] } },
-        where: { id: request.marker_id },
-      }),
     ]
+
+    if (input.response === RequestStatus.Accepted) {
+      transaction.push(
+        client().marker.update({
+          data: { owners: { push: [request.user_id] } },
+          where: { id: request.marker_id },
+        }),
+      )
+    }
 
     if (isSubscribed) {
       transaction.push(
