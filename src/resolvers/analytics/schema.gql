@@ -1,0 +1,19 @@
+type MarkersAnalytics {
+  category: String!
+  description: String
+  duration: Int!
+  expiresAt: Date
+  id: Int!
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  owners: Int!
+  recurrence: String!
+  requests: Int!
+  subscriptions: Int!
+  timeZone: String!
+}
+
+type Query {
+  markersAnalytics: [MarkersAnalytics!]!
+}

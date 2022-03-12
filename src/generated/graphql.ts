@@ -81,6 +81,23 @@ export type Marker = {
   timeZone: Scalars['String'];
 };
 
+export type MarkersAnalytics = {
+  __typename?: 'MarkersAnalytics';
+  category: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+  duration: Scalars['Int'];
+  expiresAt?: Maybe<Scalars['Date']>;
+  id: Scalars['Int'];
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
+  name: Scalars['String'];
+  owners: Scalars['Int'];
+  recurrence: Scalars['String'];
+  requests: Scalars['Int'];
+  subscriptions: Scalars['Int'];
+  timeZone: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addMarker: Marker;
@@ -180,6 +197,7 @@ export type Query = {
   categories: Array<Category>;
   marker: Marker;
   markers: Array<Marker>;
+  markersAnalytics: Array<MarkersAnalytics>;
   user: User;
 };
 
@@ -329,6 +347,7 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Marker: ResolverTypeWrapper<MinimumIdentifiableMarker>;
+  MarkersAnalytics: ResolverTypeWrapper<MarkersAnalytics>;
   Mutation: ResolverTypeWrapper<{}>;
   Platform: Platform;
   Profile: ResolverTypeWrapper<Profile>;
@@ -359,6 +378,7 @@ export type ResolversParentTypes = {
   Float: Scalars['Float'];
   Int: Scalars['Int'];
   Marker: MinimumIdentifiableMarker;
+  MarkersAnalytics: MarkersAnalytics;
   Mutation: {};
   Profile: Profile;
   Query: {};
@@ -422,6 +442,23 @@ export type MarkerResolvers<ContextType = any, ParentType extends ResolversParen
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MarkersAnalyticsResolvers<ContextType = any, ParentType extends ResolversParentTypes['MarkersAnalytics'] = ResolversParentTypes['MarkersAnalytics']> = {
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  latitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  longitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  owners?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recurrence?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requests?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subscriptions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  timeZone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addMarker?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationAddMarkerArgs, 'input'>>;
   addRequest?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<MutationAddRequestArgs, 'input'>>;
@@ -449,6 +486,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
   marker?: Resolver<ResolversTypes['Marker'], ParentType, ContextType, RequireFields<QueryMarkerArgs, 'id'>>;
   markers?: Resolver<Array<ResolversTypes['Marker']>, ParentType, ContextType>;
+  markersAnalytics?: Resolver<Array<ResolversTypes['MarkersAnalytics']>, ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
 };
 
@@ -487,6 +525,7 @@ export type Resolvers<ContextType = any> = {
   Date?: GraphQLScalarType;
   Event?: EventResolvers<ContextType>;
   Marker?: MarkerResolvers<ContextType>;
+  MarkersAnalytics?: MarkersAnalyticsResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Profile?: ProfileResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
